@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="# Introduction
+
+# Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
+## 离散去噪过程
+### 扩散过程：
+从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。">
+<meta property="og:title" content="UNIFY MULTIMODAL UNDERSTANDING AND GENERATION论文分析[Show-o]">
+<meta property="og:description" content="# Introduction
+
+# Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
+## 离散去噪过程
+### 扩散过程：
+从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://mickeyding.github.io/post/UNIFY%20MULTIMODAL%20UNDERSTANDING%20AND%20GENERATION-lun-wen-fen-xi-%5BShow-o%5D.html">
+<meta property="og:image" content="https://github.githubassets.com/favicons/favicon.svg">
+<title>UNIFY MULTIMODAL UNDERSTANDING AND GENERATION论文分析[Show-o]</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">UNIFY MULTIMODAL UNDERSTANDING AND GENERATION论文分析[Show-o]</h1>
+<div class="title-right">
+    <a href="https://mickeyding.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/mickeyding/mickeyding.github.io/issues/2" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h1>Introduction</h1>
+<h1>Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION</h1>
+<h2>离散去噪过程</h2>
+<h3>扩散过程：</h3>
+<p>从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。<br>
+transition_matrix[t] 用于确定图像每个像素的状态更新（如变为噪声、保持不变或变为掩码）。</p>
+<h3>逆扩散过程：</h3>
+<p>从时间步 T 的噪声图像 x_T 开始，使用训练好的模型逐步去除噪声，恢复到接近原始图像的状态。模型通过学习如何从腐蚀后的图像预测出原始图像标记。文中提到，这个过程类似于MaskGIT中使用的掩码标记预测，通过逐步恢复被掩码的部分来完成图像重建。</p>
+<h3>扩散过程的分析</h3>
+<p>文中提到的离散去噪扩散与传统的连续扩散模型（如基于高斯噪声的扩散模型）有所不同。在离散扩散模型中，图像被表示为离散的标记（tokens），每个标记代表一个特定的图像像素状态。扩散过程通过一个过渡矩阵进行控制，这个矩阵定义了图像每个标记在不同时间步的状态转移概率。</p>
+<p>此扩散过程的核心是通过离散状态转换实现图像标记的逐步腐蚀与恢复，从而生成或重建图像。</p>
+<h3>离散去噪过程的伪代码</h3>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-c"># 参数</span>
+<span class="pl-v">T</span> <span class="pl-c1">=</span> <span class="pl-s1">总时间步数</span>  <span class="pl-c"># 扩散的步数</span>
+<span class="pl-v">K</span> <span class="pl-c1">=</span> <span class="pl-s1">图像的token数量</span>  <span class="pl-c"># token的离散类别数</span>
+<span class="pl-s1">alpha_t</span> <span class="pl-c1">=</span> <span class="pl-s1">mask的概率</span>  <span class="pl-c"># 转换为[MASK]的概率</span>
+<span class="pl-s1">beta_t</span> <span class="pl-c1">=</span> <span class="pl-s1">扩散概率</span>  <span class="pl-c"># 产生均匀噪声的概率</span>
+
+<span class="pl-c"># 定义转移矩阵 Q_t</span>
+<span class="pl-k">def</span> <span class="pl-en">transition_matrix</span>(<span class="pl-v">Q_t</span>, <span class="pl-s1">alpha_t</span>, <span class="pl-s1">beta_t</span>, <span class="pl-v">K</span>):
+    <span class="pl-s1">mask_token</span> <span class="pl-c1">=</span> <span class="pl-v">K</span>  <span class="pl-c"># [MASK] token的索引</span>
+    <span class="pl-v">I</span> <span class="pl-c1">=</span> <span class="pl-en">identity_matrix</span>(<span class="pl-v">K</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>)  <span class="pl-c"># 大小为(K+1)的单位矩阵</span>
+    <span class="pl-s1">em</span> <span class="pl-c1">=</span> <span class="pl-en">one_hot</span>(<span class="pl-s1">mask_token</span>, <span class="pl-v">K</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>)  <span class="pl-c"># [MASK] token的one-hot向量</span>
+
+    <span class="pl-c"># 定义 Qa 和 Qu 组成转移矩阵</span>
+    <span class="pl-v">Qa</span> <span class="pl-c1">=</span> (<span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-s1">alpha_t</span>) <span class="pl-c1">*</span> <span class="pl-v">I</span> <span class="pl-c1">+</span> <span class="pl-s1">alpha_t</span> <span class="pl-c1">*</span> <span class="pl-s1">em</span> @ <span class="pl-s1">em</span>.<span class="pl-v">T</span>
+    <span class="pl-v">Qu</span> <span class="pl-c1">=</span> <span class="pl-v">I</span> <span class="pl-c1">-</span> <span class="pl-s1">beta_t</span> <span class="pl-c1">*</span> (<span class="pl-v">I</span> <span class="pl-c1">-</span> <span class="pl-s1">em</span> @ <span class="pl-s1">em</span>.<span class="pl-v">T</span>) <span class="pl-c1">+</span> (<span class="pl-s1">beta_t</span> <span class="pl-c1">/</span> (<span class="pl-v">K</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>)) <span class="pl-c1">*</span> (<span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-s1">em</span>) @ (<span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-s1">em</span>).<span class="pl-v">T</span>
+
+    <span class="pl-c"># 最终转移矩阵 Q_t</span>
+    <span class="pl-k">return</span> <span class="pl-v">Qa</span> @ <span class="pl-v">Qu</span>
+
+<span class="pl-c"># 前向扩散过程</span>
+<span class="pl-k">def</span> <span class="pl-en">forward_process</span>(<span class="pl-s1">x0</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>):
+    <span class="pl-s1">xt</span> <span class="pl-c1">=</span> <span class="pl-s1">x0</span>  <span class="pl-c"># 初始图像的tokens</span>
+    <span class="pl-k">for</span> <span class="pl-s1">t</span> <span class="pl-c1">in</span> <span class="pl-en">range</span>(<span class="pl-c1">1</span>, <span class="pl-v">T</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>):
+        <span class="pl-s1">xt</span> <span class="pl-c1">=</span> <span class="pl-en">corrupt_tokens</span>(<span class="pl-s1">xt</span>, <span class="pl-v">Q_t</span>)  <span class="pl-c"># 基于 Q_t 扰乱tokens</span>
+    <span class="pl-k">return</span> <span class="pl-s1">xt</span>
+
+<span class="pl-c"># 逆向去噪过程</span>
+<span class="pl-k">def</span> <span class="pl-en">reverse_process</span>(<span class="pl-s1">xt_corrupted</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>):
+    <span class="pl-s1">xt_denoised</span> <span class="pl-c1">=</span> <span class="pl-s1">xt_corrupted</span>
+    <span class="pl-k">for</span> <span class="pl-s1">t</span> <span class="pl-c1">in</span> <span class="pl-en">range</span>(<span class="pl-v">T</span>, <span class="pl-c1">0</span>, <span class="pl-c1">-</span><span class="pl-c1">1</span>):
+        <span class="pl-s1">xt_denoised</span> <span class="pl-c1">=</span> <span class="pl-en">denoise</span>(<span class="pl-s1">xt_denoised</span>, <span class="pl-v">Q_t</span>)  <span class="pl-c"># 逐步去噪</span>
+    <span class="pl-k">return</span> <span class="pl-s1">xt_denoised</span>
+
+<span class="pl-c"># 训练目标：Mask Token 预测</span>
+<span class="pl-k">def</span> <span class="pl-en">train_model</span>(<span class="pl-s1">x0</span>, <span class="pl-v">T</span>):
+    <span class="pl-v">Q_t</span> <span class="pl-c1">=</span> <span class="pl-en">transition_matrix</span>(<span class="pl-s1">alpha_t</span>, <span class="pl-s1">beta_t</span>, <span class="pl-v">K</span>)  <span class="pl-c"># 获取转移矩阵</span>
+    <span class="pl-s1">xt_corrupted</span> <span class="pl-c1">=</span> <span class="pl-en">forward_process</span>(<span class="pl-s1">x0</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>)  <span class="pl-c"># 扩散过程</span>
+    <span class="pl-s1">xt_predicted</span> <span class="pl-c1">=</span> <span class="pl-en">reverse_process</span>(<span class="pl-s1">xt_corrupted</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>)  <span class="pl-c"># 预测并恢复</span>
+
+    <span class="pl-c"># 计算原始图像和预测图像之间的损失</span>
+    <span class="pl-s1">loss</span> <span class="pl-c1">=</span> <span class="pl-en">compute_loss</span>(<span class="pl-s1">x0</span>, <span class="pl-s1">xt_predicted</span>)
+    <span class="pl-k">return</span> <span class="pl-s1">loss</span>
+
+<span class="pl-c"># 推理过程：生成图像</span>
+<span class="pl-k">def</span> <span class="pl-en">generate_image</span>(<span class="pl-v">T</span>):
+    <span class="pl-s1">xt_noise</span> <span class="pl-c1">=</span> <span class="pl-en">sample_random_noise</span>()  <span class="pl-c"># 采样随机噪声</span>
+    <span class="pl-s1">xt_denoised</span> <span class="pl-c1">=</span> <span class="pl-en">reverse_process</span>(<span class="pl-s1">xt_noise</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>)  <span class="pl-c"># 去噪生成新图像</span>
+    <span class="pl-k">return</span> <span class="pl-s1">xt_denoised</span></pre></div>
+<h3>Qt 转移矩阵</h3>
+<h4>基本定义</h4>
+<p>Qt矩阵定义了扰动的转移概率，表示在时间步 𝑡中数据的扰动方式。Qt矩阵的公式如下：</p>
+<p>$$<br>
+𝑄_𝑡 = 𝑄_𝑡^𝑎 * 𝑄_𝑡^𝑢​<br>
+$$<br>
+其中：𝑄_𝑡^𝑎  控制图像token是否被转为[MASK] token。<br>
+𝑄_𝑡^u 控制图像token的噪声扰动过程(以均匀概率转换其token的类别）。</p>
+<p>$$
+Q_t^a = (1 - \alpha_t) \cdot I + \alpha_t \cdot \mathbf{1} \cdot e_m^T
+$$</p>
+<ul>
+<li>( I )：单位矩阵。</li>
+<li>( \alpha_t )：token 被 <code class="notranslate">[MASK]</code> 的概率。</li>
+<li>( e_m )：<code class="notranslate">[MASK]</code> token 的 one-hot 向量。</li>
+<li>( \mathbf{1} )：全1向量，表示其他 tokens 被转换为 <code class="notranslate">[MASK]</code> 的部分。</li>
+</ul>
+<p>$$
+Q_t^u = I - \beta_t \cdot (I - e_m e_m^T) + \frac{\beta_t}{K+1} \cdot (1 - e_m)(1 - e_m)^T
+$$</p>
+<ul>
+<li>( \beta_t )：控制 token 被扰动为均匀噪声的概率。</li>
+<li>( K )：token 的类别数。</li>
+<li>( e_m e_m^T )：将 token 扩散为 <code class="notranslate">[MASK]</code>。</li>
+</ul>
+<p>$$
+Q_t = \begin{pmatrix}
+\omega_t + \nu_t &amp; \nu_t &amp; \nu_t &amp; \alpha_t \\
+\nu_t &amp; \omega_t + \nu_t &amp; \nu_t &amp; \alpha_t \\
+\nu_t &amp; \nu_t &amp; \omega_t + \nu_t &amp; \alpha_t \\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{pmatrix}
+$$</p>
+<p>其中：</p>
+<ul>
+<li>
+<p>( \omega_t = 1 - \alpha_t - \beta_t )。</p>
+</li>
+<li>
+<p>( \nu_t = \frac{\beta_t}{K + 1} )。</p>
+</li>
+<li>
+<p><strong>( \omega_t )</strong>: 表示 token 保持不变的概率。</p>
+</li>
+<li>
+<p><strong>( \nu_t )</strong>: 表示 token 被均匀扰动的概率。</p>
+</li>
+<li>
+<p><strong>( \alpha_t )</strong>: 表示 token 被转化为 <code class="notranslate">[MASK]</code> token 的概率。</p>
+</li>
+</ul>
+<h4>Q t的学习与定义</h4>
+<p>在离散去噪扩散模型中，过渡矩阵通常是事先定义好的，不是通过学习获得的。具体来说：</p>
+<p><strong>事先定义</strong>：在模型设计阶段， Qt的结构由设计者指定，基于图像标记的腐蚀过程要求。这个矩阵的构造是根据扩散过程的需求，例如，我们希望在早期时间步较高概率地将标记替换为掩码 [MASK]，然后逐渐降低这种概率。<br>
+<strong>概率控制</strong>： 𝛼𝑡，𝛽𝑡是两个时间步相关的参数，定义了每个时间步中标记被掩码和扩散的概率。通常这些参数会随着时间变化，早期时间步中腐蚀强度较高（即较大概率替换为 [MASK]），而在后期时间步中，腐蚀变得较小，保留更多原始信息。</p>
+<h4>Qt的演变过程</h4>
+<p>扩散过程通过 Qt矩阵定义了每个标记在时间步 t 时的状态变化。这个过程可以分为两部分：</p>
+<ul>
+<li>
+<p><strong>前向扩散</strong>：在每个时间步 𝑡，使用 𝑄𝑡对图像标记进行腐蚀，增加噪声，使得标记逐渐变得随机或被掩码。<br>
+在这个过程中，早期的 𝑄𝑡会有较高的 𝛼𝑡值，这意味着标记更有可能被替换为 [MASK] 标记。</p>
+</li>
+<li>
+<p><strong>反向扩散</strong>：模型学习通过逆扩散过程逐步去除噪声，恢复原始图像。反向扩散过程中，模型通过对已掩码的标记进行预测，逐步恢复图像标记的真实值。</p>
+</li>
+</ul>
+<h4>示例：吸收-均匀扩散的解释</h4>
+<p>假设有一个图像被离散为若干个标记，每个标记可以是 1 到 𝐾之间的整数，并且我们有一个 [MASK] 状态。在某个时间步 𝑡假设<br>
+𝛼𝑡 = 0.2； 𝛽𝑡 = 0.1； 标记 𝑥𝑡可以有以下几种可能的状态变化：</p>
+<ul>
+<li>20% 概率被替换为 [MASK]；</li>
+<li>10% 概率扩散到其他标记类别，均匀分布；</li>
+<li>70% 概率保持不变。<br>
+这种设计使得模型在扩散过程中逐渐丧失原始图像信息，而在逆扩散过程中通过去噪逐渐恢复图像。</li>
+</ul></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://mickeyding.github.io">NiaDing's Technical Blog </a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","mickeyding/mickeyding.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+<script async type='text/javascript' src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'></script><script>MathJax = {tex: {inlineMath: [["$", "$"]]}};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</html>
