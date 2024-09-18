@@ -10,18 +10,12 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="# Introduction
-多模态
-
-# Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
+<meta name="description" content="# Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
 ## 离散去噪过程
 ### 扩散过程：
 从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。">
 <meta property="og:title" content="UNIFY MULTIMODAL UNDERSTANDING AND GENERATION论文分析[Show-o]">
-<meta property="og:description" content="# Introduction
-多模态
-
-# Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
+<meta property="og:description" content="# Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
 ## 离散去噪过程
 ### 扩散过程：
 从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。">
@@ -95,9 +89,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><h1>Introduction</h1>
-<p>多模态</p>
-<h1>Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION</h1>
+<div class="markdown-body" id="postBody"><h1>Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION</h1>
 <h2>离散去噪过程</h2>
 <h3>扩散过程：</h3>
 <p>从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。<br>
@@ -156,8 +148,8 @@ transition_matrix[t] 用于确定图像每个像素的状态更新（如变为�
     <span class="pl-s1">xt_noise</span> <span class="pl-c1">=</span> <span class="pl-en">sample_random_noise</span>()  <span class="pl-c"># 采样随机噪声</span>
     <span class="pl-s1">xt_denoised</span> <span class="pl-c1">=</span> <span class="pl-en">reverse_process</span>(<span class="pl-s1">xt_noise</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>)  <span class="pl-c"># 去噪生成新图像</span>
     <span class="pl-k">return</span> <span class="pl-s1">xt_denoised</span></pre></div>
-<h3>Qt 转移矩阵</h3>
-<h4>基本定义</h4>
+<h2>Qt 转移矩阵</h2>
+<h3>基本定义</h3>
 <p>Qt矩阵定义了扰动的转移概率，表示在时间步 𝑡中数据的扰动方式。Qt矩阵的公式如下：</p>
 <p>$$<br>
 𝑄_𝑡 = 𝑄_𝑡^𝑎 * 𝑄_𝑡^𝑢​<br>
@@ -207,11 +199,11 @@ $$</p>
 <p><strong>( $\alpha_t$ )</strong>: 表示 token 被转化为 <code class="notranslate">[MASK]</code> token 的概率。</p>
 </li>
 </ul>
-<h4>Qt的学习</h4>
+<h3>Qt的学习</h3>
 <p>在离散去噪扩散模型中，过渡矩阵通常是事先定义好的，不是通过学习获得的。具体来说：</p>
 <p><strong>事先定义</strong>：在模型设计阶段， Qt的结构由设计者指定，基于图像标记的腐蚀过程要求。这个矩阵的构造是根据扩散过程的需求，例如，我们希望在早期时间步较高概率地将标记替换为掩码 [MASK]，然后逐渐降低这种概率。<br>
 <strong>概率控制</strong>： 𝛼𝑡，𝛽𝑡是两个时间步相关的参数，定义了每个时间步中标记被掩码和扩散的概率。通常这些参数会随着时间变化，早期时间步中腐蚀强度较高（即较大概率替换为 [MASK]），而在后期时间步中，腐蚀变得较小，保留更多原始信息。</p>
-<h4>Qt的演变过程</h4>
+<h3>Qt的演变过程</h3>
 <p>扩散过程通过 Qt矩阵定义了每个标记在时间步 t 时的状态变化。这个过程可以分为两部分：</p>
 <ul>
 <li>
@@ -222,7 +214,7 @@ $$</p>
 <p><strong>反向扩散</strong>：模型学习通过逆扩散过程逐步去除噪声，恢复原始图像。反向扩散过程中，模型通过对已掩码的标记进行预测，逐步恢复图像标记的真实值。</p>
 </li>
 </ul>
-<h4>示例：吸收-均匀扩散的解释</h4>
+<h3>示例：吸收-均匀扩散的解释</h3>
 <p>假设有一个图像被离散为若干个标记，每个标记可以是 1 到 𝐾之间的整数，并且我们有一个 [MASK] 状态。在某个时间步 𝑡假设 𝛼𝑡 = 0.2； 𝛽𝑡 = 0.1； 标记 𝑥𝑡可以有以下几种可能的状态变化：</p>
 <ul>
 <li>20% 概率被替换为 [MASK]；</li>
@@ -230,9 +222,9 @@ $$</p>
 <li>70% 概率保持不变。<br>
 这种设计使得模型在扩散过程中逐渐丧失原始图像信息，而在逆扩散过程中通过去噪逐渐恢复图像。</li>
 </ul>
-<h3>网络学习的目标</h3>
+<h2>网络学习的目标</h2>
 <p>show-o的反向去噪过程参考了maskgit文章的实现，先来看基本的maskgit是如何生成图片，再来看show-o中网络学习的目标是什么？以及从理论推导出发，如何保证该去噪过程可以做适当简化，最终和maskgit一致；</p>
-<h4>maskgit</h4>
+<h3>MaskGIT</h3>
 <p><strong>MaskGIT 学习目标</strong>：</p>
 <p>在 MaskGIT 中，网络的学习目标是通过从时间步 (x_t)（即包含一定比例掩码的图像）预测出原始图像的标记 (x_0)。MaskGIT 模型学习的是如何在给定部分掩码信息的情况下，利用上下文恢复被掩码的图像部分。因此，<strong>每次预测的目标确实是原始图像 (x_0)</strong>，但这种恢复是基于部分标记已经被填充的条件下进行的。</p>
 <p>MaskGIT 采用的是 <strong>Masked Visual Token Modeling (MVTM)</strong>，这一策略与 BERT 中的 masked language modeling (MLM) 类似。具体来说，在训练过程中，随机选择一部分图像标记并替换为特殊的 <code class="notranslate">[MASK]</code> 标记，模型的任务是利用其余未掩码的部分来恢复这些掩码标记；</p>
@@ -247,9 +239,9 @@ $$</p>
 </ul>
 <p><strong>与 Show-O 文章的联系</strong>:</p>
 <p>从 Show-O 文章的简化扩散模型推导来看，MaskGIT 的方法与其密切相关，特别是关于如何从扩散后的噪声图像 (x_t) 直接预测 (x_0)。Show-O 的模型通过引入 <code class="notranslate">[MASK]</code> 标记并简化状态转移，使得模型在每一步扩散过程中都只需考虑两种情况：<strong>保持不变或被掩码</strong>。而 MaskGIT 的设计恰好也采用了类似的 <code class="notranslate">[MASK]</code> 标记策略，通过交叉熵损失对掩码部分进行监督，最终恢复出 (x_0)。在这种设置下，无论输入的图像包含什么样的噪声或被掩码的部分，<strong>输出的目标始终是恢复出原始图像 (x_0)</strong>。两者是一致的；</p>
-<h4>Qt矩阵简化：简化状态转移</h4>
-<p>文中公式 (8) 给出的是变分推断中的证据下界（ELBO）：<br>
-$$\mathbb{E}<em>{q(x_0)} [\log p</em>\theta(x_0)] \geq \mathbb{E}<em>{q(x_0)}[-L</em>{\text{ELBO}}(x_0, \theta)] \geq \sum_{t=1}^{T} \mathbb{E}<em>{q(x_0) q(x_t | x_0)} [\log p</em>\theta(x_0 | x_t)] + C $$</p>
+<h3>Qt矩阵简化：简化状态转移</h3>
+<p>文中公式 (8) 给出的是variational lower bound：<br>
+$$ \mathbb{E}<em>{q(x_0)} [\log p</em>\theta(x_0)] \geq \mathbb{E}<em>{q(x_0)}[-L</em>{\text{ELBO}}(x_0, \theta)] \geq \sum_{t=1}^{T} \mathbb{E}<em>{q(x_0) q(x_t | x_0)} [\log p</em>\theta(x_0 | x_t)] + C $$</p>
 <p>其中：</p>
 <ul>
 <li>(  $p_\theta(x_0 | x_t) $ ) 是从时间步 ( t ) 恢复到初始图像 ( $x_0$ ) 的概率，描述模型的去噪能力；</li>
@@ -257,7 +249,7 @@ $$\mathbb{E}<em>{q(x_0)} [\log p</em>\theta(x_0)] \geq \mathbb{E}<em>{q(x_0)}[-L
 <li>( C ) 是与模型无关的常数项。</li>
 </ul>
 <p><strong>简化结论的推导动机</strong>:</p>
-<p>从公式 (8) 的推导可以看出，模型的目标是通过最大化去噪恢复概率 ( p_\theta(x_0 | x_t) ) 来优化去噪过程。在去噪任务中，模型需要预测每个时间步 ( t ) 的图像如何恢复原始状态 ( x_0 )。因此，为了简化这种预测任务，我们可以减少模型在每个时间步中需要处理的标记转移情况，从而提出“标记要么保持不变，要么变为 <code class="notranslate">[MASK]</code>”的简化策略。</p>
+<p>从公式 (8) 的推导可以看出，模型的目标是通过最大化去噪恢复概率 ( $p_\theta(x_0 | x_t)$ ) 来优化去噪过程。在去噪任务中，模型需要预测每个时间步 ( t ) 的图像如何恢复原始状态 ( $x_0$ )。因此，为了简化这种预测任务，最大化$p_\theta(x_0 | x_t)$前提下, 我们可以减少模型在每个时间步中需要处理的标记转移情况，从而提出“标记要么保持不变，要么变为 <code class="notranslate">[MASK]</code>”的简化策略。</p>
 <p><strong>为什么简化为“保持不变或替换为 <code class="notranslate">[MASK]</code>”</strong></p>
 <ol>
 <li>
@@ -267,7 +259,7 @@ $$\mathbb{E}<em>{q(x_0)} [\log p</em>\theta(x_0)] \geq \mathbb{E}<em>{q(x_0)}[-L
 <p><strong>优化计算效率</strong>：通过限制标记状态的变化，KL 散度项的计算也被简化，因为模型只需考虑两种状态（保持不变或被掩码）。这样，公式 (8) 中的损失项可以在优化中变得更加简洁，从而提升计算效率。</p>
 </li>
 <li>
-<p><strong>去噪任务的集中化</strong>：简化后，模型的去噪任务集中于恢复 <code class="notranslate">[MASK]</code> 部分。这与公式 (8) 的推导结果一致：模型的目标是从噪声干扰的图像 ( x_t ) 中最大化恢复原始图像 ( x_0 ) 的概率。通过限制标记转移为两种状态，去噪过程可以更有效地进行，模型无需处理复杂的类别转移。</p>
+<p><strong>去噪任务的集中化</strong>：简化后，模型的去噪任务集中于恢复 <code class="notranslate">[MASK]</code> 部分。这与公式 (8) 的推导结果一致：模型的目标是从噪声干扰的图像 ( $x_t$ ) 中最大化恢复原始图像 ( $x_0$ ) 的概率。通过限制标记转移为两种状态，去噪过程可以更有效地进行，模型无需处理复杂的类别转移。</p>
 </li>
 </ol></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
