@@ -243,6 +243,9 @@ $$</p>
 <p>文中公式 (8) 给出的是variational lower bound：</p>
 <p>$$ [ \mathbb{E}<em>{q(x_0)} [\log p</em>\theta(x_0)] \geq \mathbb{E}<em>{q(x_0)}[-L</em>{\text{ELBO}}(x_0, \theta)] \geq \sum_{t=1}^{T}\mathbb{E}<em>{q(x_0) q(x_t | x_0)} [\log p</em>\theta(x_0 | x_t)] + C ] $$</p>
 <p>$$ \mathbb{E}<em>{q(x_0)} [\log p</em>\theta(x_0)] \geq \mathbb{E}<em>{q(x_0)}[-L</em>{\text{ELBO}}(x_0, \theta)] \geq \sum_{t=1}^{T} \mathbb{E}<em>{q(x_0) q(x_t | x_0)} [\log p</em>\theta(x_0 | x_t)] + C $$</p>
+<p>$$<br>
+\mathbb{E}<em>{q(x_0)} [\log p</em>\theta(x_0)] \geq \mathbb{E}<em>{q(x_0)}[-L</em>{\text{ELBO}}(x_0, \theta)] \geq \sum_{t=1}^{T} \mathbb{E}<em>{q(x_0) q(x_t | x_0)} [\log p</em>\theta(x_0 | x_t)] + C<br>
+$$</p>
 <p>其中：</p>
 <ul>
 <li>(  $p_\theta(x_0 | x_t) $ ) 是从时间步 ( t ) 恢复到初始图像 ( $x_0$ ) 的概率，描述模型的去噪能力；</li>
