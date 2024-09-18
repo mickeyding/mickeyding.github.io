@@ -164,15 +164,8 @@ $$ L_{\text{mask}} = -\sum_{i \in \text{masked}} \log p_\theta(x_0^i | x_t) $$
 
 $$ E_{q(x_0)} [\log p_\theta(x_0)] \geq E_{q(x_0)}[-L_{ELBO}(x_0, \theta)] \geq \sum_{t=1}^{T} E_{q(x_0) q(x_t | x_0)} [\log p_\theta(x_0 | x_t)] + C  $$
 
-
-$$ \mathbb{E}_{q(x_0)} [\log p_\theta(x_0)] \geq \mathbb{E}_{q(x_0)}[-L_{\text{ELBO}}(x_0, \theta)] \geq \sum_{t=1}^{T} \mathbb{E}_{q(x_0) q(x_t | x_0)} [\log p_\theta(x_0 | x_t)] + C $$
-
-$$
-\mathbb{E}_{q(x_0)} [\log p_\theta(x_0)] \geq \mathbb{E}_{q(x_0)}[-L_{\text{ELBO}}(x_0, \theta)] \geq \sum_{t=1}^{T} \mathbb{E}_{q(x_0) q(x_t | x_0)} [\log p_\theta(x_0 | x_t)] + C
-$$
-
 其中：
-- \(  $p_\theta(x_0 | x_t) $ \) 是从时间步 \( t \) 恢复到初始图像 \( $x_0$ \) 的概率，描述模型的去噪能力；
+- \(  $ p_\theta (x_0 | x_t) $ \) 是从时间步 \( t \) 恢复到初始图像 \( $x_0$ \) 的概率，描述模型的去噪能力；
 - \( $q(x_t | x_0) $ \) 是前向扩散过程中从 \( $x_0$ \) 到 \( $x_t$ \) 的概率分布；
 - \( C \) 是与模型无关的常数项。
 
