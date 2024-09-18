@@ -240,8 +240,8 @@ $$</p>
 <p><strong>与 Show-O 文章的联系</strong>:</p>
 <p>从 Show-O 文章的简化扩散模型推导来看，MaskGIT 的方法与其密切相关，特别是关于如何从扩散后的噪声图像 (x_t) 直接预测 (x_0)。Show-O 的模型通过引入 <code class="notranslate">[MASK]</code> 标记并简化状态转移，使得模型在每一步扩散过程中都只需考虑两种情况：<strong>保持不变或被掩码</strong>。而 MaskGIT 的设计恰好也采用了类似的 <code class="notranslate">[MASK]</code> 标记策略，通过交叉熵损失对掩码部分进行监督，最终恢复出 (x_0)。在这种设置下，无论输入的图像包含什么样的噪声或被掩码的部分，<strong>输出的目标始终是恢复出原始图像 (x_0)</strong>。两者是一致的；</p>
 <h3>Qt矩阵简化：简化状态转移</h3>
-<p>文中公式 (8) 给出的是variational lower bound：<br>
-$$ \mathbb{E}<em>{q(x_0)} [\log p</em>\theta(x_0)] \geq \mathbb{E}<em>{q(x_0)}[-L</em>{\text{ELBO}}(x_0, \theta)] \geq \sum_{t=1}^{T} \mathbb{E}<em>{q(x_0) q(x_t | x_0)} [\log p</em>\theta(x_0 | x_t)] + C $$</p>
+<p>文中公式 (8) 给出的是variational lower bound：</p>
+<p>$$ \mathbb{E}<em>{q(x_0)} [\log p</em>\theta(x_0)] \geq \mathbb{E}<em>{q(x_0)}[-L</em>{\text{ELBO}}(x_0, \theta)] \geq \sum_{t=1}^{T} \mathbb{E}<em>{q(x_0) q(x_t | x_0)} [\log p</em>\theta(x_0 | x_t)] + C $$</p>
 <p>其中：</p>
 <ul>
 <li>(  $p_\theta(x_0 | x_t) $ ) 是从时间步 ( t ) 恢复到初始图像 ( $x_0$ ) 的概率，描述模型的去噪能力；</li>

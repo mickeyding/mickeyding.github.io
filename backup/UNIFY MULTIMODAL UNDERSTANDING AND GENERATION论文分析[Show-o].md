@@ -161,6 +161,7 @@ $$ L_{\text{mask}} = -\sum_{i \in \text{masked}} \log p_\theta(x_0^i | x_t) $$
 ### Qt矩阵简化：简化状态转移
 
 文中公式 (8) 给出的是variational lower bound：
+
 $$ \mathbb{E}_{q(x_0)} [\log p_\theta(x_0)] \geq \mathbb{E}_{q(x_0)}[-L_{\text{ELBO}}(x_0, \theta)] \geq \sum_{t=1}^{T} \mathbb{E}_{q(x_0) q(x_t | x_0)} [\log p_\theta(x_0 | x_t)] + C $$
 
 其中：
