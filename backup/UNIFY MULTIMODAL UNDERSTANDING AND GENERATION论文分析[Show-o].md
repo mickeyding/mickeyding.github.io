@@ -105,12 +105,12 @@ Q_t = \begin{pmatrix}
 $$
 
 其中：
-- \( \omega_t = 1 - \alpha_t - \beta_t \)。
-- \( \nu_t = \frac{\beta_t}{K + 1} \)。
+- \( $\omega_t = 1 - \alpha_t - \beta_t $ \)。
+- \( $\nu_t = \frac{\beta_t}{K + 1} $ \)。
 
-- **\( \omega_t \)**: 表示 token 保持不变的概率。
-- **\( \nu_t \)**: 表示 token 被均匀扰动的概率。
-- **\( \alpha_t \)**: 表示 token 被转化为 `[MASK]` token 的概率。
+- **\( $\omega_t$ \)**: 表示 token 保持不变的概率。
+- **\( $\nu_t$ \)**: 表示 token 被均匀扰动的概率。
+- **\( $\alpha_t$ \)**: 表示 token 被转化为 `[MASK]` token 的概率。
 
 
 #### Qt的学习
