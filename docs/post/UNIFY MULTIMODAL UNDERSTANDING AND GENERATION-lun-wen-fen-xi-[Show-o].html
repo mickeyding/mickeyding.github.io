@@ -11,6 +11,7 @@
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
 <meta name="description" content="# Introduction
+多模态
 
 # Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
 ## 离散去噪过程
@@ -18,6 +19,7 @@
 从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。">
 <meta property="og:title" content="UNIFY MULTIMODAL UNDERSTANDING AND GENERATION论文分析[Show-o]">
 <meta property="og:description" content="# Introduction
+多模态
 
 # Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
 ## 离散去噪过程
@@ -94,6 +96,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
     <div id="content">
 <div class="markdown-body" id="postBody"><h1>Introduction</h1>
+<p>多模态</p>
 <h1>Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION</h1>
 <h2>离散去噪过程</h2>
 <h3>扩散过程：</h3>
@@ -166,17 +169,17 @@ Q_t^a = (1 - \alpha_t) \cdot I + \alpha_t \cdot \mathbf{1} \cdot e_m^T
 $$</p>
 <ul>
 <li>( I )：单位矩阵。</li>
-<li>( \alpha_t )：token 被 <code class="notranslate">[MASK]</code> 的概率。</li>
-<li>( e_m )：<code class="notranslate">[MASK]</code> token 的 one-hot 向量。</li>
-<li>( \mathbf{1} )：全1向量，表示其他 tokens 被转换为 <code class="notranslate">[MASK]</code> 的部分。</li>
+<li>( $\alpha_t$ )：token 被 <code class="notranslate">[MASK]</code> 的概率。</li>
+<li>( $e_m$ )：<code class="notranslate">[MASK]</code> token 的 one-hot 向量。</li>
+<li>( $\mathbf{1}$ )：全1向量，表示其他 tokens 被转换为 <code class="notranslate">[MASK]</code> 的部分。</li>
 </ul>
 <p>$$
 Q_t^u = I - \beta_t \cdot (I - e_m e_m^T) + \frac{\beta_t}{K+1} \cdot (1 - e_m)(1 - e_m)^T
 $$</p>
 <ul>
-<li>( \beta_t )：控制 token 被扰动为均匀噪声的概率。</li>
+<li>( $\beta_t$ )：控制 token 被扰动为均匀噪声的概率。</li>
 <li>( K )：token 的类别数。</li>
-<li>( e_m e_m^T )：将 token 扩散为 <code class="notranslate">[MASK]</code>。</li>
+<li>( $e_m e_m^T$ )：将 token 扩散为 <code class="notranslate">[MASK]</code>。</li>
 </ul>
 <p>$$
 Q_t = \begin{pmatrix}
@@ -204,7 +207,7 @@ $$</p>
 <p><strong>( \alpha_t )</strong>: 表示 token 被转化为 <code class="notranslate">[MASK]</code> token 的概率。</p>
 </li>
 </ul>
-<h4>Q t的学习与定义</h4>
+<h4>Qt的学习</h4>
 <p>在离散去噪扩散模型中，过渡矩阵通常是事先定义好的，不是通过学习获得的。具体来说：</p>
 <p><strong>事先定义</strong>：在模型设计阶段， Qt的结构由设计者指定，基于图像标记的腐蚀过程要求。这个矩阵的构造是根据扩散过程的需求，例如，我们希望在早期时间步较高概率地将标记替换为掩码 [MASK]，然后逐渐降低这种概率。<br>
 <strong>概率控制</strong>： 𝛼𝑡，𝛽𝑡是两个时间步相关的参数，定义了每个时间步中标记被掩码和扩散的概率。通常这些参数会随着时间变化，早期时间步中腐蚀强度较高（即较大概率替换为 [MASK]），而在后期时间步中，腐蚀变得较小，保留更多原始信息。</p>
@@ -220,8 +223,7 @@ $$</p>
 </li>
 </ul>
 <h4>示例：吸收-均匀扩散的解释</h4>
-<p>假设有一个图像被离散为若干个标记，每个标记可以是 1 到 𝐾之间的整数，并且我们有一个 [MASK] 状态。在某个时间步 𝑡假设<br>
-𝛼𝑡 = 0.2； 𝛽𝑡 = 0.1； 标记 𝑥𝑡可以有以下几种可能的状态变化：</p>
+<p>假设有一个图像被离散为若干个标记，每个标记可以是 1 到 𝐾之间的整数，并且我们有一个 [MASK] 状态。在某个时间步 𝑡假设 𝛼𝑡 = 0.2； 𝛽𝑡 = 0.1； 标记 𝑥𝑡可以有以下几种可能的状态变化：</p>
 <ul>
 <li>20% 概率被替换为 [MASK]；</li>
 <li>10% 概率扩散到其他标记类别，均匀分布；</li>
