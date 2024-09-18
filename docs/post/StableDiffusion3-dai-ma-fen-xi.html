@@ -161,7 +161,30 @@ $$z_{t} = t * \epsilon + (1.0 - t ) * z_{t - 1}$$
 <div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-s1">prev_sample</span> <span class="pl-c1">=</span> <span class="pl-s1">sample</span> <span class="pl-c1">+</span> (<span class="pl-s1">sigma_next</span> <span class="pl-c1">-</span> <span class="pl-s1">sigma</span>) <span class="pl-c1">*</span> <span class="pl-s1">model_output</span></pre></div>
 $$z_{t -1} = z_t + dt * s_{\theta}(x_t, t) ;
 
- \frac{d x_t}{dt} = s_{\theta}(x_t, t)$$</div>
+ \frac{d x_t}{dt} = s_{\theta}(x_t, t)$$
+<h1>train</h1>
+<h2>compute_loss_weighting_for_sd3</h2>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-k">def</span> <span class="pl-en">compute_loss_weighting_for_sd3</span>(<span class="pl-s1">weighting_scheme</span>: <span class="pl-s1">str</span>, <span class="pl-s1">sigmas</span><span class="pl-c1">=</span><span class="pl-c1">None</span>):
+    <span class="pl-s">"""Computes loss weighting scheme for SD3 training.</span>
+<span class="pl-s"></span>
+<span class="pl-s">    Courtesy: This was contributed by Rafie Walker in https://github.com/huggingface/diffusers/pull/8528.</span>
+<span class="pl-s"></span>
+<span class="pl-s">    SD3 paper reference: https://arxiv.org/abs/2403.03206v1.</span>
+<span class="pl-s">    """</span>
+    <span class="pl-k">if</span> <span class="pl-s1">weighting_scheme</span> <span class="pl-c1">==</span> <span class="pl-s">"sigma_sqrt"</span>:
+        <span class="pl-s1">weighting</span> <span class="pl-c1">=</span> (<span class="pl-s1">sigmas</span><span class="pl-c1">**</span><span class="pl-c1">-</span><span class="pl-c1">2.0</span>).<span class="pl-en">float</span>()
+    <span class="pl-k">elif</span> <span class="pl-s1">weighting_scheme</span> <span class="pl-c1">==</span> <span class="pl-s">"cosmap"</span>:
+        <span class="pl-s1">bot</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-c1">2</span> <span class="pl-c1">*</span> <span class="pl-s1">sigmas</span> <span class="pl-c1">+</span> <span class="pl-c1">2</span> <span class="pl-c1">*</span> <span class="pl-s1">sigmas</span><span class="pl-c1">**</span><span class="pl-c1">2</span>
+        <span class="pl-s1">weighting</span> <span class="pl-c1">=</span> <span class="pl-c1">2</span> <span class="pl-c1">/</span> (<span class="pl-s1">math</span>.<span class="pl-s1">pi</span> <span class="pl-c1">*</span> <span class="pl-s1">bot</span>)
+    <span class="pl-k">else</span>:
+        <span class="pl-s1">weighting</span> <span class="pl-c1">=</span> <span class="pl-s1">torch</span>.<span class="pl-en">ones_like</span>(<span class="pl-s1">sigmas</span>)
+    <span class="pl-k">return</span> <span class="pl-s1">weighting</span></pre></div>
+<p>参考SD3论文公式(18), 公式(22)</p>
+$$w_{t}^{\pi} = \frac{t}{1 - t} \pi(t);
+
+\pi_{cosmap}(t) = \frac{2}{\pi - 2 \pi t + 2 \pi t^2}$$
+<h3>precondition_outputs</h3>
+<p><a href="https://arxiv.org/abs/2206.00364" rel="nofollow">https://arxiv.org/abs/2206.00364</a></p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>

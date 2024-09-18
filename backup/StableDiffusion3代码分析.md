@@ -86,5 +86,37 @@ prev_sample = sample + (sigma_next - sigma) * model_output
 
  \frac{d x_t}{dt} = s_{\theta}(x_t, t)
 ``` 
+# train 
+## compute_loss_weighting_for_sd3
+``` Python
+def compute_loss_weighting_for_sd3(weighting_scheme: str, sigmas=None):
+    """Computes loss weighting scheme for SD3 training.
+
+    Courtesy: This was contributed by Rafie Walker in https://github.com/huggingface/diffusers/pull/8528.
+
+    SD3 paper reference: https://arxiv.org/abs/2403.03206v1.
+    """
+    if weighting_scheme == "sigma_sqrt":
+        weighting = (sigmas**-2.0).float()
+    elif weighting_scheme == "cosmap":
+        bot = 1 - 2 * sigmas + 2 * sigmas**2
+        weighting = 2 / (math.pi * bot)
+    else:
+        weighting = torch.ones_like(sigmas)
+    return weighting
+``` 
+参考SD3论文公式(18), 公式(22)
+
+``` math
+w_{t}^{\pi} = \frac{t}{1 - t} \pi(t);
+
+\pi_{cosmap}(t) = \frac{2}{\pi - 2 \pi t + 2 \pi t^2}
+```
+
+### precondition_outputs
+https://arxiv.org/abs/2206.00364
+
+
+
 
 
