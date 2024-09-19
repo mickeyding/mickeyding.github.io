@@ -10,13 +10,13 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="# Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model
+<meta name="description" content="该模型能够在离散数据（如文本）和连续数据（如图像）上进行训练，并集成了语言模型的“下一个词预测”任务和扩散模型的图像生成能力；Transfusion 基本模型在多个基准任务上表现一般，最高配置模型在图像生成方面，其生成质量与其他扩散模型如SDXL等相当，但模型参数量是其2+倍；
 
 ## 具体方案
 
 - 联合多模态损失函数：Transfusion模型将语言建模（next-token prediction）与图像扩散损失相结合，模型在训练过程中同时暴露于这两种不同的模态和相应的损失函数。">
 <meta property="og:title" content="【论文阅读】Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model">
-<meta property="og:description" content="# Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model
+<meta property="og:description" content="该模型能够在离散数据（如文本）和连续数据（如图像）上进行训练，并集成了语言模型的“下一个词预测”任务和扩散模型的图像生成能力；Transfusion 基本模型在多个基准任务上表现一般，最高配置模型在图像生成方面，其生成质量与其他扩散模型如SDXL等相当，但模型参数量是其2+倍；
 
 ## 具体方案
 
@@ -81,7 +81,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><h1>Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model</h1>
+<div class="markdown-body" id="postBody"><p>该模型能够在离散数据（如文本）和连续数据（如图像）上进行训练，并集成了语言模型的“下一个词预测”任务和扩散模型的图像生成能力；Transfusion 基本模型在多个基准任务上表现一般，最高配置模型在图像生成方面，其生成质量与其他扩散模型如SDXL等相当，但模型参数量是其2+倍；</p>
 <h2>具体方案</h2>
 <ul>
 <li>
@@ -120,8 +120,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>跨模态任务表现更好：由于文本和图像都共享相同的表示空间，模型更容易生成跨模态的高质量输出；而将所有模态对齐到文本空间可能在某些特定场景下损失部分细节，尤其是在需要高精度的图像生成任务中，在一些任务中，图像对文本空间的过度对齐可能会导致图像特征的部分损失，影响图像生成的细节；</li>
 </ul>
 <h2>任务表现</h2>
-<p>最好的配置下（7B），最多的数据下（2Ttokens），图像生成的质量和SDXL（2.6B）差不多；比show-o的FID要低；<br>
-但是全文比较的其他工作有限，基础配置下只和Chameleon模型比较；</p>
+<p>最好的配置下（7B），最多的数据下（2Ttokens），图像生成的质量和SDXL（2.6B）差不多；比show-o的FID要低；但是全文比较的其他工作有限，基础配置下只和Chameleon模型比较；</p>
 <p><strong>文本生成任务</strong>：Transfusion比Chameleon模型表现更好，尤其在参数较少时，Transfusion使用的FLOPs显著减少。</p>
 <p><strong>图像生成任务</strong>：对比模型：Transfusion在图像生成中表现显著优于Chameleon，尤其是在计算效率上。Transfusion在图像生成任务中的FLOP效率约为Chameleon的34倍。同时，Transfusion生成的图像质量与其他领先的图像生成模型（如DeepFloyd和DALL-E 2）相当，且支持同时生成文本和图像。</p>
 <p><strong>视觉问答（VQA）</strong>：<br>
