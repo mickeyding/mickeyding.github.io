@@ -11,14 +11,12 @@
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
 <meta name="description" content="# Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
-## 离散去噪过程
-### 扩散过程：
-从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。">
+
+SHOW-O 通过一个单一的Transformer架构，引入**离散去噪过程**处理图像的生成任务，LLM任务采用因果attention，图像生成任务采用全局attention，统一了多模态理解和生成任务，无需多个专门的模型。">
 <meta property="og:title" content="【论文阅读】Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION">
 <meta property="og:description" content="# Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
-## 离散去噪过程
-### 扩散过程：
-从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。">
+
+SHOW-O 通过一个单一的Transformer架构，引入**离散去噪过程**处理图像的生成任务，LLM任务采用因果attention，图像生成任务采用全局attention，统一了多模态理解和生成任务，无需多个专门的模型。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://mickeyding.github.io/post/%E3%80%90-lun-wen-yue-du-%E3%80%91Show-o-%20ONE%20SINGLE%20TRANSFORMER%20TO%20UNIFY%20MULTIMODAL%20UNDERSTANDING%20AND%20GENERATION.html">
 <meta property="og:image" content="https://github.githubassets.com/favicons/favicon.svg">
@@ -90,6 +88,12 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
     <div id="content">
 <div class="markdown-body" id="postBody"><h1>Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION</h1>
+<p>SHOW-O 通过一个单一的Transformer架构，引入<strong>离散去噪过程</strong>处理图像的生成任务，LLM任务采用因果attention，图像生成任务采用全局attention，统一了多模态理解和生成任务，无需多个专门的模型。</p>
+<ul>
+<li>在文本到图像生成任务中，能匹敌SD1.5的效果，但仍有提升空间；</li>
+<li>SHOW-O 支持多种任务类型，如视觉问答、图像修复、图像外推、混合模态生成等，无需针对每个任务进行特殊微调；</li>
+<li>目前SHOW-O的参数规模为1.3B，相比一些更大规模的模型，模型scaling law的能力仍需验证；</li>
+</ul>
 <h2>离散去噪过程</h2>
 <h3>扩散过程：</h3>
 <p>从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。<br>

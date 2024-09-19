@@ -1,4 +1,11 @@
 # Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
+
+SHOW-O 通过一个单一的Transformer架构，引入**离散去噪过程**处理图像的生成任务，LLM任务采用因果attention，图像生成任务采用全局attention，统一了多模态理解和生成任务，无需多个专门的模型。
+
+- 在文本到图像生成任务中，能匹敌SD1.5的效果，但仍有提升空间；
+-  SHOW-O 支持多种任务类型，如视觉问答、图像修复、图像外推、混合模态生成等，无需针对每个任务进行特殊微调；
+- 目前SHOW-O的参数规模为1.3B，相比一些更大规模的模型，模型scaling law的能力仍需验证；
+
 ## 离散去噪过程
 ### 扩散过程：
 从初始图像 x_0 开始，通过每个时间步 t 使用过渡矩阵 transition_matrix[t] 对图像进行腐蚀（加噪）。
