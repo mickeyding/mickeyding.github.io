@@ -1,5 +1,3 @@
-# Show-o: ONE SINGLE TRANSFORMER TO UNIFY MULTIMODAL UNDERSTANDING AND GENERATION
-
 SHOW-O 通过一个单一的Transformer架构，引入**离散去噪过程**处理图像的生成任务，LLM任务采用因果attention，图像生成任务采用全局attention，统一了多模态理解和生成任务，无需多个专门的模型。
 
 - 在文本到图像生成任务中，能匹敌SD1.5的效果，但仍有提升空间；
