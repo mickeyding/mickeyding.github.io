@@ -73,7 +73,19 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><p>MonoFormer 是一种多模态生成模型，基本想法和Transfusion类似，它通过共享一个Transformer模型实现了文本自回归和图像扩散两种生成任务。MonoFormer提出了一种统一的框架，使同一个Transformer架构同时用于多种模态的生成任务。以下是MonoFormer的多模态实现方法的详细介绍：</p>
+<div class="markdown-body" id="postBody"><p>MonoFormer 是一种多模态生成模型，基本想法和Transfusion类似，它通过共享一个Transformer模型实现了文本自回归和图像扩散两种生成任务。MonoFormer提出了一种统一的框架，使同一个Transformer架构同时用于多种模态的生成任务。</p>
+<h1>与Transfusion的比较总结</h1>
+<ul>
+<li>1.与Transfusion高度类似，都是共享Transformer模型，都是同时使用因果attention和双向attention完成文本自回归任务和图像扩散任务，都是连续特征，都是文本和图像共享特征空间</li>
+<li>2.MonoFormer 整体而言没有Transfusion的效果好，表现在：
+<ul>
+<li>a.模型scale up的能力（MonoFormer 1B vs Transfusion 7B）</li>
+<li>b.多模态任务质量（MonoFormer 部分指标下降，文章提到We believe the performance can be further improved when more language data are incorporated in training，且图像生成质量没有和SD系列模型比较）</li>
+<li>c.图像编辑能力（Transfusion展现了文本控制图像编辑，MonoFormer没有）</li>
+</ul>
+</li>
+</ul>
+<p>以下是MonoFormer的多模态实现方法的详细介绍：</p>
 <h1>1. 模型架构设计</h1>
 <p>MonoFormer的核心思想是使用单一Transformer架构同时处理自回归（文本生成）和扩散（图像生成）两种不同任务。在现有的多模态模型中，通常会使用两个不同的网络，一个用于离散数据（例如文本）的自回归建模，另一个用于连续数据（例如图像）的扩散建模。而MonoFormer则通过共享Transformer模型来同时处理离散（文本）和连续（图像）数据，减少了模型的复杂性。</p>
 <ul>
