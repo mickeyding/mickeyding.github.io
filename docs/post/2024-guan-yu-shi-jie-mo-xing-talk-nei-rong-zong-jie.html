@@ -10,8 +10,7 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="
-# NIO IN 2024 NIO Innovation Technology Day
+<meta name="description" content="# NIO IN 2024 NIO Innovation Technology Day
 
 ##  大脑的两个核心的能力：
 - 空间理解：想象重建
@@ -42,8 +41,7 @@
 ### 如果这个0.1s包括216种不同未来帧的视频生成的时间
 - 1.蔚来的方案基于diffusion的video decoder，但花了很多工夫优化diffusion head的速度；基于diffusion的head 即使SD3的图像模型TensorRT加速后的速度也差不多在1s/帧（1080p）；7月份的模型，速度做到0.1s，并行度拉满到216， 也得在视频diffusion的模型上相比SD3加速10倍。">
 <meta property="og:title" content="2024关于世界模型talk内容总结">
-<meta property="og:description" content="
-# NIO IN 2024 NIO Innovation Technology Day
+<meta property="og:description" content="# NIO IN 2024 NIO Innovation Technology Day
 
 ##  大脑的两个核心的能力：
 - 空间理解：想象重建
@@ -161,7 +159,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>1.蔚来的方案基于diffusion的video decoder，但花了很多工夫优化diffusion head的速度；基于diffusion的head 即使SD3的图像模型TensorRT加速后的速度也差不多在1s/帧（1080p）；7月份的模型，速度做到0.1s，并行度拉满到216， 也得在视频diffusion的模型上相比SD3加速10倍。</li>
 <li>2.蔚来的方案只用vae下的video decoder的模型，该模型也可以做到时序上的平滑生成，效率比diffusion高效</li>
 </ul>
-<p>个人倾向于0.1s不包括视频生成的时间；如果该速度没有考虑并行度，batchsize为1，一次infer的时间是0.00046s，按照gaia-1的分辨率，288<em>512， 一帧的token数量是18</em>32 = 576个，一个token的预测时间是8*10^-7s;  再考虑后续接diffusion head的时间，应该是远远不够，这部分我再仔细思考一下；</p>
+<p>个人倾向于0.1s不包括视频生成的时间；如果该速度没有考虑并行度，batchsize为1，一次infer的时间是0.00046s，按照gaia-1的分辨率，288x512， 一帧的token数量是18x32 = 576个，一个token的预测时间是8*10^-7s;  再考虑后续接diffusion head的时间，应该是远远不够，这部分我再仔细思考一下；</p>
 <h2>NWM的优势</h2>
 <p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/8a5307a6-f46f-4d8b-8de3-cf326c2f9310"><img src="https://github.com/user-attachments/assets/8a5307a6-f46f-4d8b-8de3-cf326c2f9310" alt="image" style="max-width: 100%;"></a></p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
