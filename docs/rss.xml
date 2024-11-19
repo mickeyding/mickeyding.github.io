@@ -1,5 +1,27 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>NiaDing's Technical Blog </title><link>https://mickeyding.github.io</link><description>I have research and development experience in autonomous driving simulation, and have explored related technologies such as NeRF, 3DGS and diffusion. Here, I will be sharing my insights and knowledge with everyone.</description><copyright>NiaDing's Technical Blog </copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://github.githubassets.com/favicons/favicon.svg</url><title>avatar</title><link>https://mickeyding.github.io</link></image><lastBuildDate>Thu, 24 Oct 2024 02:13:37 +0000</lastBuildDate><managingEditor>NiaDing's Technical Blog </managingEditor><ttl>60</ttl><webMaster>NiaDing's Technical Blog </webMaster><item><title>【论文整理】Instance-level Control for Image Generation</title><link>https://mickeyding.github.io/post/%E3%80%90-lun-wen-zheng-li-%E3%80%91Instance-level%20Control%20for%20Image%20Generation.html</link><description># PaperList&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>NiaDing's Technical Blog </title><link>https://mickeyding.github.io</link><description>I have research and development experience in autonomous driving simulation, and have explored related technologies such as NeRF, 3DGS and diffusion. Here, I will be sharing my insights and knowledge with everyone.</description><copyright>NiaDing's Technical Blog </copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://github.githubassets.com/favicons/favicon.svg</url><title>avatar</title><link>https://mickeyding.github.io</link></image><lastBuildDate>Tue, 19 Nov 2024 10:07:50 +0000</lastBuildDate><managingEditor>NiaDing's Technical Blog </managingEditor><ttl>60</ttl><webMaster>NiaDing's Technical Blog </webMaster><item><title>2024关于世界模型talk内容总结</title><link>https://mickeyding.github.io/post/2024-guan-yu-shi-jie-mo-xing-talk-nei-rong-zong-jie.html</link><description>#【NIO IN 2024 NIO Innovation Technology Day】&#13;
+&#13;
+##  大脑的两个核心的能力：&#13;
+- 空间理解：想象重建&#13;
+- 时间理解：想象推演&#13;
+以上两个能力即是时空的认知能力 -&gt; 世界模型&#13;
+&#13;
+## 蔚来世界模型NWM&#13;
+从提取信息的角度，把世界模型和感知算法的迭代路径统一了&#13;
+![image](https://github.com/user-attachments/assets/56fdfc7e-9772-4bea-b1e4-fe08a4b4aef8)&#13;
+&#13;
+世界模型算法相比感知的优势：&#13;
+![image](https://github.com/user-attachments/assets/1a6338fe-3a38-4c0d-be67-d321701f7267)&#13;
+&#13;
+能想象变化才是真实的时空理解，想象的真实度和丰富度是理解深度的体现；&#13;
+&#13;
+- 重建的真实性：来源于千万clips的学习&#13;
+- 开发了新的时空encoding的方式&#13;
+-  加入了智驾的指令&#13;
+&#13;
+&#13;
+&#13;
+。</description><guid isPermaLink="true">https://mickeyding.github.io/post/2024-guan-yu-shi-jie-mo-xing-talk-nei-rong-zong-jie.html</guid><pubDate>Tue, 19 Nov 2024 10:07:18 +0000</pubDate></item><item><title>【论文整理】Instance-level Control for Image Generation</title><link>https://mickeyding.github.io/post/%E3%80%90-lun-wen-zheng-li-%E3%80%91Instance-level%20Control%20for%20Image%20Generation.html</link><description># PaperList&#13;
 - IFAdapter: Instance feature control for grounded Text-to-Image Generation（2024.09）&#13;
 - MIGC++: Advanced Multi-Instance Generation Controller for Image Synthesis（2024.07）&#13;
 - InstanceDiffusion:Instance-level Control for Image Generation（2024.02）&#13;
