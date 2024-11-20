@@ -26,20 +26,7 @@
 
 能想象变化才是真实的时空理解，想象的真实度和丰富度是理解深度的体现；
 
-- 重建的真实性：来源于千万clips的学习
-- 开发了新的时空encoding的方式
--  加入了智驾的指令
-
-## 世界模型的穿越
-让世界模型回到撞车前的3s中，世界模型可以推演出更合理的驾驶行为
-
-## 轨迹规划
-每0.1s生成216个平行的可能轨迹，评选后选出最优解
-
-**猜测**：核心在于这句话；从这句话出发，蔚来的未披露的NWM的技术细节应该是依赖LLM类自回归的架构，类似GAIA-1；视频生成和轨迹生成应该是两个head；基于历史信息，预测未来帧的轨迹，没有提到Lidar，应该不是基于BEVFormer类似的多模态世界模型，应该就是自回归架构，类似ADrive-I同时输出图像和轨迹的token，其中轨迹的token可以当成文本的token处理，是一个多模态的自回归架构；
-
-### 如果这个0.1s包括216种不同未来帧的视频生成的时间
-- 1.蔚来的方案基于diffusion的video decoder，但花了很多工夫优化diffusion head的速度；基于diffusion的head 即使SD3的图像模型TensorRT加速后的速度也差不多在1s/帧（1080p）；7月份的模型，速度做到0.1s，并行度拉满到216， 也得在视频diffusion的模型上相比SD3加速10倍。">
+”大脑就像一个“动态模拟器”，它能够在当前的时空框架中，模拟出多个不同的变化情景。">
 <meta property="og:title" content="2024关于世界模型talk内容总结">
 <meta property="og:description" content="# NIO IN 2024 NIO Innovation Technology Day
 
@@ -57,20 +44,7 @@
 
 能想象变化才是真实的时空理解，想象的真实度和丰富度是理解深度的体现；
 
-- 重建的真实性：来源于千万clips的学习
-- 开发了新的时空encoding的方式
--  加入了智驾的指令
-
-## 世界模型的穿越
-让世界模型回到撞车前的3s中，世界模型可以推演出更合理的驾驶行为
-
-## 轨迹规划
-每0.1s生成216个平行的可能轨迹，评选后选出最优解
-
-**猜测**：核心在于这句话；从这句话出发，蔚来的未披露的NWM的技术细节应该是依赖LLM类自回归的架构，类似GAIA-1；视频生成和轨迹生成应该是两个head；基于历史信息，预测未来帧的轨迹，没有提到Lidar，应该不是基于BEVFormer类似的多模态世界模型，应该就是自回归架构，类似ADrive-I同时输出图像和轨迹的token，其中轨迹的token可以当成文本的token处理，是一个多模态的自回归架构；
-
-### 如果这个0.1s包括216种不同未来帧的视频生成的时间
-- 1.蔚来的方案基于diffusion的video decoder，但花了很多工夫优化diffusion head的速度；基于diffusion的head 即使SD3的图像模型TensorRT加速后的速度也差不多在1s/帧（1080p）；7月份的模型，速度做到0.1s，并行度拉满到216， 也得在视频diffusion的模型上相比SD3加速10倍。">
+”大脑就像一个“动态模拟器”，它能够在当前的时空框架中，模拟出多个不同的变化情景。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://mickeyding.github.io/post/2024-guan-yu-shi-jie-mo-xing-talk-nei-rong-zong-jie.html">
 <meta property="og:image" content="https://github.githubassets.com/favicons/favicon.svg">
@@ -144,6 +118,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>世界模型算法相比感知的优势：<br>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/1a6338fe-3a38-4c0d-be67-d321701f7267"><img src="https://github.com/user-attachments/assets/1a6338fe-3a38-4c0d-be67-d321701f7267" alt="image" style="max-width: 100%;"></a></p>
 <p>能想象变化才是真实的时空理解，想象的真实度和丰富度是理解深度的体现；</p>
+<p>”大脑就像一个“动态模拟器”，它能够在当前的时空框架中，模拟出多个不同的变化情景。通过对这些变化的想象，大脑能够在更复杂的环境中做出灵活的判断和决策“</p>
 <ul>
 <li>重建的真实性：来源于千万clips的学习</li>
 <li>开发了新的时空encoding的方式</li>
