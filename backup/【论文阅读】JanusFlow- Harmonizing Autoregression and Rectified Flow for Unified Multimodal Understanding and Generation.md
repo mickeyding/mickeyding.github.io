@@ -16,6 +16,8 @@ JanusFlow 是一个结合 **整流流（Rectified Flow）** 和 **任务解耦�
 - **生成解码器（Generation Decoder, \(g_{dec}\)**）：  
   将生成编码器的特征映射回图像空间，通过像素上采样和线性变换生成高质量图像。
 
+![image](https://github.com/user-attachments/assets/acb16891-aff8-44e8-a766-d2df6322f66a)
+
 ### (2) **整流流生成模块**
 通过建模时间上的微分方程逐步将高斯噪声转换为目标数据分布：
 - **时间步预测**：
