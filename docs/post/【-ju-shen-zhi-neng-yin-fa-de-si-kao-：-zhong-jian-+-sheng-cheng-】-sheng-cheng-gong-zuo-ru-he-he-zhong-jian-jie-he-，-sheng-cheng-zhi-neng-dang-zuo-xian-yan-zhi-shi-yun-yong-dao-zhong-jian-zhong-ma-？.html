@@ -17,6 +17,8 @@
 
 # Driving Scene Synthesis on Free-form Trajectories with Generative Prior
 
+该方法利用视频生成模型当成先验，来更好的训练 3DGS 新视角生成的能力；
+
 ## 关键方法具体实现
 
 ### 1. 生成先验与逆问题设计
@@ -30,6 +32,8 @@
 2.
 
 # Driving Scene Synthesis on Free-form Trajectories with Generative Prior
+
+该方法利用视频生成模型当成先验，来更好的训练 3DGS 新视角生成的能力；
 
 ## 关键方法具体实现
 
@@ -101,6 +105,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>1.Driving Scene Synthesis on Free-form Trajectories with Generative Prior [2024.12.02]<br>
 2.</p>
 <h1>Driving Scene Synthesis on Free-form Trajectories with Generative Prior</h1>
+<p>该方法利用视频生成模型当成先验，来更好的训练 3DGS 新视角生成的能力；</p>
 <h2>关键方法具体实现</h2>
 <h3>1. 生成先验与逆问题设计</h3>
 <h4>目标</h4>
@@ -158,20 +163,24 @@ $$</li>
 <li>
 <p><strong>生成新轨迹图像</strong>：</p>
 <ul>
-<li>利用当前高斯模型渲染新轨迹视图的图像 $ V'_t $，并通过扩散模型生成优化版本 $ V'_t, refine $。</li>
+<li>利用当前高斯模型渲染新轨迹视图的图像  ($ V'_t $ \），并通过扩散模型生成优化版本  ($ V'_t, refine $  \）。</li>
 </ul>
 </li>
 <li>
 <p><strong>计算损失</strong>：</p>
 <ul>
-<li>在记录轨迹上使用图像重建损失：<br>
-$$<br>
+<li>
+<p>在记录轨迹上使用图像重建损失：</p>
+<p>$$<br>
 L_{\text{img}} = \lambda |I' - I|<em>1 + (1 - \lambda)L</em>{\text{SSIM}}<br>
-$$</li>
-<li>在新轨迹上引入生成先验的损失：<br>
+$$</p>
+</li>
+<li>
+<p>在新轨迹上引入生成先验的损失：<br>
 $$<br>
 L' = L_{\text{img}}(V'_t, V'_t, refine)<br>
-$$</li>
+$$</p>
+</li>
 </ul>
 </li>
 <li>
