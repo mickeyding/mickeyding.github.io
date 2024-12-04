@@ -251,16 +251,16 @@ $$</p>
 <h3>损失函数：</h3>
 <p>训练目标包含两部分：</p>
 <ol>
-<li>
-<p><strong>轨迹重构损失（L1 Loss）：</strong><br>
-优化预测轨迹 $\hat{\tau}<em>{k}$ 与真实轨迹 $\tau</em>{gt}$ 的距离：</p>
+<li><strong>轨迹重构损失（L1 Loss）：</strong></li>
+</ol>
+<p>优化预测轨迹 $\hat{\tau}<em>{k}$ 与真实轨迹 $\tau</em>{gt}$ 的距离。</p>
 <p>$$<br>
 L_{rec} = | \hat{\tau}<em>k - \tau</em>{gt} |_1<br>
 $$</p>
-</li>
+<ol start="3">
 <li>
-<p><strong>分类损失（Binary Cross-Entropy Loss）：</strong><br>
-优化锚点轨迹的置信度评分 $\hat{s}_{k}$ 是否与实际匹配：</p>
+<p><strong>分类损失（Binary Cross-Entropy Loss）：</strong></p>
+<p>优化锚点轨迹的置信度评分 $\hat{s}_{k}$ 是否与实际匹配：</p>
 <p>$$<br>
 L_{cls} = -y_k \log(\hat{s}_k) - (1-y_k) \log(1-\hat{s}_k)<br>
 $$</p>
@@ -269,7 +269,7 @@ $$</p>
 </ol>
 <p>只预测离Groundtruth最近的anchor的分类损失和轨迹的重建损失，综合损失为：</p>
 <p>$$<br>
-L = \sum_k [y_k L_{rec} ( \hat{\tau}<em>{k}, \tau</em>{gt}) + \lambda L_{cls} (\hat{s}_k, y_k) ]<br>
+L = \sum_k \left[ y_k L_{rec} \left( \hat{\tau}<em>{k}, \tau</em>{gt} \right) + \lambda L_{cls} \left( \hat{s}_k, y_k \right) \right]<br>
 $$</p>
 <p>其中 $\lambda$ 是损失平衡因子。</p>
 <h3>训练过程：</h3>

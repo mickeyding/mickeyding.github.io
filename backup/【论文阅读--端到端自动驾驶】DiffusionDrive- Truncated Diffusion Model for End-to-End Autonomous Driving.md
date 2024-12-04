@@ -106,13 +106,15 @@ DiffusionDrive旨在解决端到端自动驾驶中的实时性、多模式决策
 ### 损失函数：
 训练目标包含两部分：
 1. **轨迹重构损失（L1 Loss）：**
-   优化预测轨迹 $\hat{\tau}_{k}$ 与真实轨迹 $\tau_{gt}$ 的距离：
 
-     $$
-     L_{rec} = | \hat{\tau}_k - \tau_{gt} |_1
-     $$
+  优化预测轨迹 $\hat{\tau}_{k}$ 与真实轨迹 $\tau_{gt}$ 的距离。
 
-2. **分类损失（Binary Cross-Entropy Loss）：**
+$$
+L_{rec} = \| \hat{\tau}_k - \tau_{gt} \|_1
+$$
+
+3. **分类损失（Binary Cross-Entropy Loss）：**
+
    优化锚点轨迹的置信度评分 $\hat{s}_{k}$ 是否与实际匹配：
 
      $$
@@ -124,8 +126,9 @@ DiffusionDrive旨在解决端到端自动驾驶中的实时性、多模式决策
 只预测离Groundtruth最近的anchor的分类损失和轨迹的重建损失，综合损失为：
 
 $$
-L = \sum_k [y_k L_{rec} ( \hat{\tau}_{k}, \tau_{gt}) + \lambda L_{cls} (\hat{s}_k, y_k) ] 
+L = \sum_k \left[ y_k L_{rec} \left( \hat{\tau}_{k}, \tau_{gt} \right) + \lambda L_{cls} \left( \hat{s}_k, y_k \right) \right]
 $$
+
 
 其中 $\lambda$ 是损失平衡因子。
 
@@ -134,7 +137,7 @@ $$
    - 对每条真实轨迹，选择距离最近的锚点作为正样本，其余为负样本。
 2. **截断扩散训练：**
    - 扩散步数设置为 $T_{trunc}$，减少训练复杂度。
-3. **优化器：**
+5. **优化器：**
    - 使用AdamW优化器，结合学习率调度策略。
 
 ---
