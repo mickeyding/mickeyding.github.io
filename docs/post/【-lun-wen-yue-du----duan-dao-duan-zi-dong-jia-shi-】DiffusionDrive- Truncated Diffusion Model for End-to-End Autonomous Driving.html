@@ -176,26 +176,20 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </ul>
 </li>
 <li>
-<p><strong>扩散过程定义：</strong></p>
-<ul>
-<li>
-<p>在训练中，向锚点添加截断的高斯噪声来构造锚点高斯分布：</p>
+<p><strong>扩散过程定义：</strong><br>
+在训练中，向锚点添加截断的高斯噪声来构造锚点高斯分布：</p>
 <p>$$<br>
-\tau_i^k = \sqrt{\bar{\alpha}<em>i}a_k + \sqrt{1-\bar{\alpha}<em>i}\epsilon, \epsilon \sim N(0, I)<br>
-$$<br>
-其中 $i \in [1, T</em>{trunc}] $，$ T</em>{trunc} $是截断的扩散步数（远小于标准扩散步数）。</p>
-</li>
-</ul>
+\tau_i^k = \sqrt{\bar{\alpha}_i}a_k + \sqrt{1-\bar{\alpha}_i}\epsilon, \epsilon \sim N(0, I)<br>
+$$</p>
+<p>其中 $i \in [1, T_{trunc}] $，$ T_{trunc} $是截断的扩散步数（远小于标准扩散步数）。</p>
 </li>
 <li>
-<p><strong>去噪过程：</strong></p>
-<ul>
-<li>模型学习从锚点高斯分布的噪声轨迹 $\tau_i^k$逐步去噪至真实轨迹分布：<br>
-$$<br>
+<p><strong>去噪过程：</strong><br>
+模型学习从锚点高斯分布的噪声轨迹 $\tau_i^k$逐步去噪至真实轨迹分布：</p>
+<p>$$<br>
 p_\theta ( \tau_{i-1} | \tau_i, z )<br>
-$$<br>
-z表示场景条件信息（如传感器数据）。</li>
-</ul>
+$$</p>
+<p>z表示场景条件信息（如传感器数据）。</p>
 </li>
 <li>
 <p><strong>推理阶段：</strong></p>
@@ -258,31 +252,26 @@ z表示场景条件信息（如传感器数据）。</li>
 <p>训练目标包含两部分：</p>
 <ol>
 <li>
-<strong>轨迹重构损失（L1 Loss）：</strong>
-<ul>
-<li>优化预测轨迹 $\hat{\tau}<em>k$与真实轨迹 $\tau</em>{gt}$的距离：<br>
-$$<br>
+<p><strong>轨迹重构损失（L1 Loss）：</strong><br>
+优化预测轨迹 $\hat{\tau}<em>k$与真实轨迹 $\tau</em>{gt}$的距离：</p>
+<p>$$<br>
 L_{rec} = | \hat{\tau}<em>k - \tau</em>{gt} |_1<br>
-$$</li>
-</ul>
+$$</p>
 </li>
 <li>
-<strong>分类损失（Binary Cross-Entropy Loss）：</strong>
-<ul>
-<li>优化锚点轨迹的置信度评分 (\hat{s}<em>k) 是否与实际匹配：<br>
-$$<br>
-L</em>{cls} = -y_k \log(\hat{s}_k) - (1-y_k) \log(1-\hat{s}_k)<br>
-$$</li>
-<li>
-$y_k=1$表示轨迹接近真实轨迹的锚点。</li>
-</ul>
+<p><strong>分类损失（Binary Cross-Entropy Loss）：</strong><br>
+优化锚点轨迹的置信度评分 (\hat{s}_k) 是否与实际匹配：</p>
+<p>$$<br>
+L_{cls} = -y_k \log(\hat{s}_k) - (1-y_k) \log(1-\hat{s}_k)<br>
+$$</p>
+<p>$y_k=1$表示轨迹接近真实轨迹的锚点。</p>
 </li>
 </ol>
-<p>只预测离Groundtruth最近的anchor的分类损失和轨迹的重建损失，综合损失为：<br>
-$$<br>
+<p>只预测离Groundtruth最近的anchor的分类损失和轨迹的重建损失，综合损失为：</p>
+<p>$$<br>
 L = \sum_k [y_k L_{rec}(\hat{\tau}<em>k, \tau</em>{gt}) + \lambda L_{cls}(\hat{s}_k, y_k)]<br>
-$$<br>
-其中 $\lambda$ 是损失平衡因子。</p>
+$$</p>
+<p>其中 $\lambda$ 是损失平衡因子。</p>
 <h3>训练过程：</h3>
 <ol>
 <li>
