@@ -106,14 +106,14 @@ DiffusionDrive旨在解决端到端自动驾驶中的实时性、多模式决策
 ### 损失函数：
 训练目标包含两部分：
 1. **轨迹重构损失（L1 Loss）：**
-   优化预测轨迹 $\hat{\tau}_k$与真实轨迹 $\tau_{gt}$的距离：
+   优化预测轨迹 $ \hat{\tau}_{k} $与真实轨迹 $ \tau_{gt} $的距离：
 
      $$
      L_{rec} = | \hat{\tau}_k - \tau_{gt} |_1
      $$
 
 2. **分类损失（Binary Cross-Entropy Loss）：**
-   优化锚点轨迹的置信度评分 \(\hat{s}_k\) 是否与实际匹配：
+   优化锚点轨迹的置信度评分 $ \hat{s}_{k} $是否与实际匹配：
 
      $$
      L_{cls} = -y_k \log(\hat{s}_k) - (1-y_k) \log(1-\hat{s}_k)
@@ -124,7 +124,7 @@ DiffusionDrive旨在解决端到端自动驾驶中的实时性、多模式决策
 只预测离Groundtruth最近的anchor的分类损失和轨迹的重建损失，综合损失为：
 
 $$
-L = \sum_k [y_k L_{rec}(\hat{\tau}_k, \tau_{gt}) + \lambda L_{cls}(\hat{s}_k, y_k)]
+L = \sum_k [y_k L_{rec} ( \hat{\tau}_k, \tau_{gt}) + \lambda L_{cls} (\hat{s}_k, y_k) ] 
 $$
 
 其中 $\lambda$ 是损失平衡因子。
