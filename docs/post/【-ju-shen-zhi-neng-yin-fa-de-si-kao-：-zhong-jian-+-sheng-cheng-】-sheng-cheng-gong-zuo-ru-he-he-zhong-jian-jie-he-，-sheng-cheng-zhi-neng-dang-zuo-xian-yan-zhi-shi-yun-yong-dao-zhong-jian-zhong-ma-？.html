@@ -163,7 +163,7 @@ $$</li>
 <li>
 <p><strong>生成新轨迹图像</strong>：</p>
 <ul>
-<li>利用当前高斯模型渲染新轨迹视图的图像  ($ V'_t $ \），并通过扩散模型生成优化版本  ($ V'_t, refine $  \）。</li>
+<li>利用当前高斯模型渲染新轨迹视图的图像  $ V'_t $ ，并通过扩散模型生成优化版本  $ V'_t, refine $  。</li>
 </ul>
 </li>
 <li>
@@ -172,7 +172,7 @@ $$</li>
 <li>
 <p>在记录轨迹上使用图像重建损失：</p>
 <p>$$<br>
-L_{\text{img}} = \lambda |I' - I|<em>1 + (1 - \lambda)L</em>{\text{SSIM}}<br>
+L_{\text{img}} = \lambda || I' - I ||<em>1 + (1 - \lambda)L</em>{\text{SSIM}}<br>
 $$</p>
 </li>
 <li>
