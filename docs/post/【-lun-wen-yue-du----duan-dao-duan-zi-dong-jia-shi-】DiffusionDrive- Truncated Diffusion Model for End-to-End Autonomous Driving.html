@@ -127,7 +127,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <tr>
 <td><strong>缺点</strong></td>
 <td>缺乏多样性，难以处理复杂场景，鲁棒性较差</td>
-<td>计算成本较高，评分机制复杂，调试困难</td>
+<td>计算成本较高，调试困难</td>
 </tr>
 <tr>
 <td><strong>轨迹数量</strong></td>
@@ -154,11 +154,6 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <td>无多样性，单一解</td>
 <td>具有多样性，支持多种潜在行为</td>
 </tr>
-<tr>
-<td><strong>开发难度</strong></td>
-<td>简单</td>
-<td>较复杂（生成与选择需优化）</td>
-</tr>
 </tbody>
 </table></markdown-accessiblity-table>
 <h1>方法</h1>
@@ -176,18 +171,20 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>
 <p><strong>锚点生成：</strong></p>
 <ul>
-<li>对训练集轨迹使用K均值聚类生成固定锚点集合 ({a_k})。</li>
-<li>每个锚点 (a_k) 是代表不同驾驶模式的参考轨迹。</li>
+<li>对训练集轨迹使用K均值聚类生成固定锚点集合 ${a_k}$。</li>
+<li>每个锚点 $ a_k $是代表不同驾驶模式的参考轨迹。</li>
 </ul>
 </li>
 <li>
 <p><strong>扩散过程定义：</strong></p>
 <ul>
-<li>在训练中，向锚点添加截断的高斯噪声来构造锚点高斯分布：<br>
-$$<br>
+<li>
+<p>在训练中，向锚点添加截断的高斯噪声来构造锚点高斯分布：</p>
+<p>$$<br>
 \tau_i^k = \sqrt{\bar{\alpha}<em>i}a_k + \sqrt{1-\bar{\alpha}<em>i}\epsilon, \epsilon \sim N(0, I)<br>
 $$<br>
-其中 $i \in [1, T</em>{trunc}] $，$T</em>{trunc}$是截断的扩散步数（远小于标准扩散步数）。</li>
+其中 $i \in [1, T</em>{trunc}] $，$ T</em>{trunc} $是截断的扩散步数（远小于标准扩散步数）。</p>
+</li>
 </ul>
 </li>
 <li>
@@ -195,7 +192,7 @@ $$<br>
 <ul>
 <li>模型学习从锚点高斯分布的噪声轨迹 $\tau_i^k$逐步去噪至真实轨迹分布：<br>
 $$<br>
-p_\theta(\tau_{i-1} | \tau_i, z)<br>
+p_\theta ( \tau_{i-1} | \tau_i, z )<br>
 $$<br>
 z表示场景条件信息（如传感器数据）。</li>
 </ul>
@@ -265,7 +262,7 @@ z表示场景条件信息（如传感器数据）。</li>
 <ul>
 <li>优化预测轨迹 $\hat{\tau}<em>k$与真实轨迹 $\tau</em>{gt}$的距离：<br>
 $$<br>
-L_{rec} = |\hat{\tau}<em>k - \tau</em>{gt}|_1<br>
+L_{rec} = | \hat{\tau}<em>k - \tau</em>{gt} |_1<br>
 $$</li>
 </ul>
 </li>
@@ -326,7 +323,7 @@ $$<br>
 <h3>6.2 nuScenes数据集：</h3>
 <p>在较简单的场景中，DiffusionDrive展现了更低的平均L2误差（0.57米）和碰撞率（0.08%），优于SparseDrive等基线模型。<br>
 推理效率提升1.8倍，同时降低了20.8%的L2误差和63.6%的碰撞率。</p>
-<h2>对比与分析</h2>
+<h2>总结</h2>
 <p>相较于传统的单模式回归（如Transfuser），DiffusionDrive不仅显著提高了多模式轨迹的生成能力，还减少了模式坍缩现象。<br>
 在与固定词汇采样方法（如VADv2）的对比中，DiffusionDrive避免了对大规模锚点集合的依赖，提升了适应复杂交通场景的能力。</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
