@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="# 目标
+DiffusionDrive旨在解决端到端自动驾驶中的实时性、多模式决策和复杂场景适应问题，通过高效生成多种驾驶轨迹，实现精准、鲁棒的驾驶规划。">
+<meta property="og:title" content="【论文阅读--端到端自动驾驶】DiffusionDrive: Truncated Diffusion Model for End-to-End Autonomous Driving">
+<meta property="og:description" content="# 目标
+DiffusionDrive旨在解决端到端自动驾驶中的实时性、多模式决策和复杂场景适应问题，通过高效生成多种驾驶轨迹，实现精准、鲁棒的驾驶规划。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://mickeyding.github.io/post/%E3%80%90-lun-wen-yue-du----duan-dao-duan-zi-dong-jia-shi-%E3%80%91DiffusionDrive-%20Truncated%20Diffusion%20Model%20for%20End-to-End%20Autonomous%20Driving.html">
+<meta property="og:image" content="https://github.githubassets.com/favicons/favicon.svg">
+<title>【论文阅读--端到端自动驾驶】DiffusionDrive: Truncated Diffusion Model for End-to-End Autonomous Driving</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">【论文阅读--端到端自动驾驶】DiffusionDrive: Truncated Diffusion Model for End-to-End Autonomous Driving</h1>
+<div class="title-right">
+    <a href="https://mickeyding.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/mickeyding/mickeyding.github.io/issues/10" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h1>目标</h1>
+<p>DiffusionDrive旨在解决端到端自动驾驶中的实时性、多模式决策和复杂场景适应问题，通过高效生成多种驾驶轨迹，实现精准、鲁棒的驾驶规划。</p>
+<h1>贡献</h1>
+<ol>
+<li><strong>截断扩散策略</strong>：设计从锚点高斯分布开始的截断扩散过程，仅需2步去噪，显著提升生成效率和轨迹多样性。</li>
+<li><strong>级联扩散解码器</strong>：引入高效的Transformer解码器，增强轨迹与场景特征的交互，优化轨迹质量。</li>
+<li><strong>性能突破</strong>：在NAVSIM数据集上实现88.1 PDMS，同时支持实时推理（45 FPS）。</li>
+<li><strong>多模式生成能力</strong>：生成多样化轨迹，显著提升复杂场景中的适应性与安全性。</li>
+<li><strong>资源效率提升</strong>：相比传统多模式方法，减少锚点需求（从8192降至20），降低计算成本。</li>
+</ol>
+<p><strong>总结</strong>：DiffusionDrive通过创新的扩散策略和解码器设计，实现了实时、多模式、高鲁棒性的端到端自动驾驶规划。</p>
+<h1>可能缺点（本人推测）</h1>
+<ol>
+<li>
+<p><strong>锚点依赖性：</strong></p>
+<ul>
+<li>依赖训练集的锚点分布，可能在锚点覆盖不足的稀有场景（如极端驾驶条件）中表现不佳。</li>
+<li>锚点选择的质量直接影响生成轨迹的合理性和多样性。</li>
+<li>较难做到不同场景之间的泛化和迁移</li>
+</ul>
+</li>
+<li>
+<p><strong>调试难度：</strong></p>
+<ul>
+<li>多模式规划方法本身较难调试，尤其是在生成和选择轨迹两阶段都可能出现问题时，错误分析复杂。</li>
+</ul>
+</li>
+</ol>
+<h1>背景</h1>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/e399784a-6a8e-45e8-a0e8-113264ce4af7"><img src="https://github.com/user-attachments/assets/e399784a-6a8e-45e8-a0e8-113264ce4af7" alt="image" style="max-width: 100%;"></a></p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>特性</th>
+<th>单模式回归</th>
+<th>多模式回归</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>实现方式</strong></td>
+<td>直接使用回归模型（如MLP、CNN, 上图中（a) ）生成单条轨迹</td>
+<td>通过锚点采样（上图中(b)）或生成模型（上图中(c), (d)）生成多条轨迹</td>
+</tr>
+<tr>
+<td><strong>优点</strong></td>
+<td>简单高效，适合简单场景，计算成本低，易于调试</td>
+<td>多样性强，适应复杂场景和突发情况，鲁棒性更高</td>
+</tr>
+<tr>
+<td><strong>缺点</strong></td>
+<td>缺乏多样性，难以处理复杂场景，鲁棒性较差</td>
+<td>计算成本较高，评分机制复杂，调试困难</td>
+</tr>
+<tr>
+<td><strong>轨迹数量</strong></td>
+<td>单一轨迹</td>
+<td>多种潜在轨迹</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>简单、明确的场景</td>
+<td>复杂、不确定性高的场景</td>
+</tr>
+<tr>
+<td><strong>计算成本</strong></td>
+<td>低</td>
+<td>较高</td>
+</tr>
+<tr>
+<td><strong>模型鲁棒性</strong></td>
+<td>对动态变化较敏感</td>
+<td>更能适应复杂和突发场景</td>
+</tr>
+<tr>
+<td><strong>轨迹多样性</strong></td>
+<td>无多样性，单一解</td>
+<td>具有多样性，支持多种潜在行为</td>
+</tr>
+<tr>
+<td><strong>开发难度</strong></td>
+<td>简单</td>
+<td>较复杂（生成与选择需优化）</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h1>方法</h1>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/f8748fb2-daba-422a-9c83-a692d48d0266"><img src="https://github.com/user-attachments/assets/f8748fb2-daba-422a-9c83-a692d48d0266" alt="image" style="max-width: 100%;"></a></p>
+<h2>1. 截断扩散策略（Truncated Diffusion Policy）</h2>
+<h3>核心思想：</h3>
+<ul>
+<li>传统扩散模型从标准高斯分布采样后，通过多步去噪生成目标分布，这种方法在动态交通场景中会导致模式坍缩且计算开销大。</li>
+<li>截断扩散策略的核心是引入<strong>锚点高斯分布</strong>作为初始化，减少扩散步数，并确保生成轨迹更符合交通行为的多样性和合理性。<br>
+下图无Truncated Diffusion Policy的结果造成模式坍缩，下图w Truncated Diffusion Policy则更具有多样性；</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/871761ac-416e-41b4-b1ba-15673f8bbc5f"><img src="https://github.com/user-attachments/assets/871761ac-416e-41b4-b1ba-15673f8bbc5f" alt="image" style="max-width: 100%;"></a></p>
+<h3>实现步骤：</h3>
+<ol>
+<li>
+<p><strong>锚点生成：</strong></p>
+<ul>
+<li>对训练集轨迹使用K均值聚类生成固定锚点集合 ({a_k})。</li>
+<li>每个锚点 (a_k) 是代表不同驾驶模式的参考轨迹。</li>
+</ul>
+</li>
+<li>
+<p><strong>扩散过程定义：</strong></p>
+<ul>
+<li>在训练中，向锚点添加截断的高斯噪声来构造锚点高斯分布：<br>
+$$<br>
+\tau_i^k = \sqrt{\bar{\alpha}<em>i}a_k + \sqrt{1-\bar{\alpha}<em>i}\epsilon, \epsilon \sim N(0, I)<br>
+$$<br>
+其中 $i \in [1, T</em>{trunc}] $，$T</em>{trunc}$是截断的扩散步数（远小于标准扩散步数）。</li>
+</ul>
+</li>
+<li>
+<p><strong>去噪过程：</strong></p>
+<ul>
+<li>模型学习从锚点高斯分布的噪声轨迹 $\tau_i^k$逐步去噪至真实轨迹分布：<br>
+$$<br>
+p_\theta(\tau_{i-1} | \tau_i, z)<br>
+$$<br>
+z表示场景条件信息（如传感器数据）。</li>
+</ul>
+</li>
+<li>
+<p><strong>推理阶段：</strong></p>
+<ul>
+<li>在推理中，采样固定数量的噪声轨迹（可以动态调整数量），以少量去噪步骤生成最终轨迹。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>2. 级联扩散解码器（Cascade Diffusion Decoder）</h2>
+<h3>核心思想：</h3>
+<ul>
+<li>基于Transformer的解码器通过多层级结构增强与场景信息的交互，从而生成更加精确和多样化的轨迹。</li>
+</ul>
+<h3>架构设计：</h3>
+<ol>
+<li>
+<p><strong>输入特征：</strong></p>
+<ul>
+<li>解码器接收锚点高斯分布的噪声轨迹以及场景特征（鸟瞰图BEV、透视图PV）。</li>
+<li>特征来源于感知模块的输出。</li>
+</ul>
+</li>
+<li>
+<p><strong>空间交叉注意力：</strong></p>
+<ul>
+<li>通过稀疏可变形注意力机制（Deformable Attention），噪声轨迹与BEV/PV特征交互，提取空间相关信息。</li>
+</ul>
+</li>
+<li>
+<p><strong>场景条件交叉注意力：</strong></p>
+<ul>
+<li>噪声轨迹进一步与感知模块的**代理（agent）<strong>和</strong>地图特征（map queries）**交互，捕获与驾驶决策相关的上下文信息。</li>
+</ul>
+</li>
+<li>
+<p><strong>时间步调制（Timestep Modulation）：</strong></p>
+<ul>
+<li>在每一步去噪中，嵌入当前扩散时间步信息，帮助模型动态调整生成轨迹。</li>
+</ul>
+</li>
+<li>
+<p><strong>轨迹评分与选择：</strong></p>
+<ul>
+<li>使用多层感知机（MLP）对每条轨迹计算置信度得分, 和最终轨迹。</li>
+<li>输出置信度最高的轨迹作为最终预测。</li>
+</ul>
+</li>
+<li>
+<p><strong>级联结构：</strong></p>
+<ul>
+<li>解码器层以级联方式迭代优化轨迹，每层共享参数。</li>
+<li>在推理过程中，逐步提升轨迹质量。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>3. 损失函数与训练策略</h2>
+<h3>损失函数：</h3>
+<p>训练目标包含两部分：</p>
+<ol>
+<li>
+<strong>轨迹重构损失（L1 Loss）：</strong>
+<ul>
+<li>优化预测轨迹 $\hat{\tau}<em>k$与真实轨迹 $\tau</em>{gt}$的距离：<br>
+$$<br>
+L_{rec} = |\hat{\tau}<em>k - \tau</em>{gt}|_1<br>
+$$</li>
+</ul>
+</li>
+<li>
+<strong>分类损失（Binary Cross-Entropy Loss）：</strong>
+<ul>
+<li>优化锚点轨迹的置信度评分 (\hat{s}<em>k) 是否与实际匹配：<br>
+$$<br>
+L</em>{cls} = -y_k \log(\hat{s}_k) - (1-y_k) \log(1-\hat{s}_k)<br>
+$$</li>
+<li>
+$y_k=1$表示轨迹接近真实轨迹的锚点。</li>
+</ul>
+</li>
+</ol>
+<p>只预测离Groundtruth最近的anchor的分类损失和轨迹的重建损失，综合损失为：<br>
+$$<br>
+L = \sum_k [y_k L_{rec}(\hat{\tau}<em>k, \tau</em>{gt}) + \lambda L_{cls}(\hat{s}_k, y_k)]<br>
+$$<br>
+其中 $\lambda$ 是损失平衡因子。</p>
+<h3>训练过程：</h3>
+<ol>
+<li>
+<strong>锚点选择：</strong>
+<ul>
+<li>对每条真实轨迹，选择距离最近的锚点作为正样本，其余为负样本。</li>
+</ul>
+</li>
+<li>
+<strong>截断扩散训练：</strong>
+<ul>
+<li>扩散步数设置为 $T_{trunc}$，减少训练复杂度。</li>
+</ul>
+</li>
+<li>
+<strong>优化器：</strong>
+<ul>
+<li>使用AdamW优化器，结合学习率调度策略。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>4. 推理灵活性</h2>
+<ul>
+<li>在推理阶段，可以动态调整采样轨迹数量 $N_{infer}$，以权衡计算资源和轨迹多样性。</li>
+<li>少量去噪步骤（如2步）即可生成高质量的多模式轨迹，满足实时性需求。</li>
+</ul>
+<hr>
+<h2>5. 模型整体架构</h2>
+<ul>
+<li>感知模块（输入：传感器数据） -&gt; 锚点高斯分布采样 -&gt; 截断扩散策略 -&gt; 级联扩散解码器 -&gt; 多模式轨迹生成。</li>
+<li>模型可适配多种感知输入和环境特征，确保通用性与扩展性。</li>
+</ul>
+<h2>6.基本结果</h2>
+<p>DiffusionDrive的性能在多个下游任务中取得了显著的提升，尤其是在以下两个关键数据集上：</p>
+<h3>6.1NAVSIM数据集：</h3>
+<p>DiffusionDrive以88.1 PDMS超越了所有现有方法。比传统多模式方法（如Hydra-MDP）提升了5.1 PDMS，同时仅需20个锚点，显著减少了计算开销。推理速度达到45 FPS（使用NVIDIA 4090 GPU），远高于传统扩散策略的7 FPS。</p>
+<h3>6.2 nuScenes数据集：</h3>
+<p>在较简单的场景中，DiffusionDrive展现了更低的平均L2误差（0.57米）和碰撞率（0.08%），优于SparseDrive等基线模型。<br>
+推理效率提升1.8倍，同时降低了20.8%的L2误差和63.6%的碰撞率。</p>
+<h2>对比与分析</h2>
+<p>相较于传统的单模式回归（如Transfuser），DiffusionDrive不仅显著提高了多模式轨迹的生成能力，还减少了模式坍缩现象。<br>
+在与固定词汇采样方法（如VADv2）的对比中，DiffusionDrive避免了对大规模锚点集合的依赖，提升了适应复杂交通场景的能力。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://mickeyding.github.io">NiaDing's Technical Blog </a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","mickeyding/mickeyding.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+<script async type='text/javascript' src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'></script><script>MathJax = {tex: {inlineMath: [["$", "$"]]}};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</html>
