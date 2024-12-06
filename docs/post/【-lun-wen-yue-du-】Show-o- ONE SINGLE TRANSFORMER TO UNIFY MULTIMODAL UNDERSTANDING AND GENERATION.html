@@ -100,52 +100,52 @@ transition_matrix[t] 用于确定图像每个像素的状态更新（如变为�
 <p>此扩散过程的核心是通过离散状态转换实现图像标记的逐步腐蚀与恢复，从而生成或重建图像。</p>
 <h3>离散去噪过程的伪代码</h3>
 <div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-c"># 参数</span>
-<span class="pl-v">T</span> <span class="pl-c1">=</span> <span class="pl-s1">总时间步数</span>  <span class="pl-c"># 扩散的步数</span>
-<span class="pl-v">K</span> <span class="pl-c1">=</span> <span class="pl-s1">图像的token数量</span>  <span class="pl-c"># token的离散类别数</span>
+<span class="pl-c1">T</span> <span class="pl-c1">=</span> <span class="pl-s1">总时间步数</span>  <span class="pl-c"># 扩散的步数</span>
+<span class="pl-c1">K</span> <span class="pl-c1">=</span> <span class="pl-s1">图像的token数量</span>  <span class="pl-c"># token的离散类别数</span>
 <span class="pl-s1">alpha_t</span> <span class="pl-c1">=</span> <span class="pl-s1">mask的概率</span>  <span class="pl-c"># 转换为[MASK]的概率</span>
 <span class="pl-s1">beta_t</span> <span class="pl-c1">=</span> <span class="pl-s1">扩散概率</span>  <span class="pl-c"># 产生均匀噪声的概率</span>
 
 <span class="pl-c"># 定义转移矩阵 Q_t</span>
-<span class="pl-k">def</span> <span class="pl-en">transition_matrix</span>(<span class="pl-v">Q_t</span>, <span class="pl-s1">alpha_t</span>, <span class="pl-s1">beta_t</span>, <span class="pl-v">K</span>):
-    <span class="pl-s1">mask_token</span> <span class="pl-c1">=</span> <span class="pl-v">K</span>  <span class="pl-c"># [MASK] token的索引</span>
-    <span class="pl-v">I</span> <span class="pl-c1">=</span> <span class="pl-en">identity_matrix</span>(<span class="pl-v">K</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>)  <span class="pl-c"># 大小为(K+1)的单位矩阵</span>
-    <span class="pl-s1">em</span> <span class="pl-c1">=</span> <span class="pl-en">one_hot</span>(<span class="pl-s1">mask_token</span>, <span class="pl-v">K</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>)  <span class="pl-c"># [MASK] token的one-hot向量</span>
+<span class="pl-k">def</span> <span class="pl-en">transition_matrix</span>(<span class="pl-v">Q_t</span>, <span class="pl-s1">alpha_t</span>, <span class="pl-s1">beta_t</span>, <span class="pl-c1">K</span>):
+    <span class="pl-s1">mask_token</span> <span class="pl-c1">=</span> <span class="pl-c1">K</span>  <span class="pl-c"># [MASK] token的索引</span>
+    <span class="pl-c1">I</span> <span class="pl-c1">=</span> <span class="pl-en">identity_matrix</span>(<span class="pl-c1">K</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>)  <span class="pl-c"># 大小为(K+1)的单位矩阵</span>
+    <span class="pl-s1">em</span> <span class="pl-c1">=</span> <span class="pl-en">one_hot</span>(<span class="pl-s1">mask_token</span>, <span class="pl-c1">K</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>)  <span class="pl-c"># [MASK] token的one-hot向量</span>
 
     <span class="pl-c"># 定义 Qa 和 Qu 组成转移矩阵</span>
-    <span class="pl-v">Qa</span> <span class="pl-c1">=</span> (<span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-s1">alpha_t</span>) <span class="pl-c1">*</span> <span class="pl-v">I</span> <span class="pl-c1">+</span> <span class="pl-s1">alpha_t</span> <span class="pl-c1">*</span> <span class="pl-s1">em</span> @ <span class="pl-s1">em</span>.<span class="pl-v">T</span>
-    <span class="pl-v">Qu</span> <span class="pl-c1">=</span> <span class="pl-v">I</span> <span class="pl-c1">-</span> <span class="pl-s1">beta_t</span> <span class="pl-c1">*</span> (<span class="pl-v">I</span> <span class="pl-c1">-</span> <span class="pl-s1">em</span> @ <span class="pl-s1">em</span>.<span class="pl-v">T</span>) <span class="pl-c1">+</span> (<span class="pl-s1">beta_t</span> <span class="pl-c1">/</span> (<span class="pl-v">K</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>)) <span class="pl-c1">*</span> (<span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-s1">em</span>) @ (<span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-s1">em</span>).<span class="pl-v">T</span>
+    <span class="pl-v">Qa</span> <span class="pl-c1">=</span> (<span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-s1">alpha_t</span>) <span class="pl-c1">*</span> <span class="pl-c1">I</span> <span class="pl-c1">+</span> <span class="pl-s1">alpha_t</span> <span class="pl-c1">*</span> <span class="pl-s1">em</span> @ <span class="pl-s1">em</span>.<span class="pl-c1">T</span>
+    <span class="pl-v">Qu</span> <span class="pl-c1">=</span> <span class="pl-c1">I</span> <span class="pl-c1">-</span> <span class="pl-s1">beta_t</span> <span class="pl-c1">*</span> (<span class="pl-c1">I</span> <span class="pl-c1">-</span> <span class="pl-s1">em</span> @ <span class="pl-s1">em</span>.<span class="pl-c1">T</span>) <span class="pl-c1">+</span> (<span class="pl-s1">beta_t</span> <span class="pl-c1">/</span> (<span class="pl-c1">K</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>)) <span class="pl-c1">*</span> (<span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-s1">em</span>) @ (<span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-s1">em</span>).<span class="pl-c1">T</span>
 
     <span class="pl-c"># 最终转移矩阵 Q_t</span>
     <span class="pl-k">return</span> <span class="pl-v">Qa</span> @ <span class="pl-v">Qu</span>
 
 <span class="pl-c"># 前向扩散过程</span>
-<span class="pl-k">def</span> <span class="pl-en">forward_process</span>(<span class="pl-s1">x0</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>):
+<span class="pl-k">def</span> <span class="pl-en">forward_process</span>(<span class="pl-s1">x0</span>, <span class="pl-v">Q_t</span>, <span class="pl-c1">T</span>):
     <span class="pl-s1">xt</span> <span class="pl-c1">=</span> <span class="pl-s1">x0</span>  <span class="pl-c"># 初始图像的tokens</span>
-    <span class="pl-k">for</span> <span class="pl-s1">t</span> <span class="pl-c1">in</span> <span class="pl-en">range</span>(<span class="pl-c1">1</span>, <span class="pl-v">T</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>):
+    <span class="pl-k">for</span> <span class="pl-s1">t</span> <span class="pl-c1">in</span> <span class="pl-en">range</span>(<span class="pl-c1">1</span>, <span class="pl-c1">T</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>):
         <span class="pl-s1">xt</span> <span class="pl-c1">=</span> <span class="pl-en">corrupt_tokens</span>(<span class="pl-s1">xt</span>, <span class="pl-v">Q_t</span>)  <span class="pl-c"># 基于 Q_t 扰乱tokens</span>
     <span class="pl-k">return</span> <span class="pl-s1">xt</span>
 
 <span class="pl-c"># 逆向去噪过程</span>
-<span class="pl-k">def</span> <span class="pl-en">reverse_process</span>(<span class="pl-s1">xt_corrupted</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>):
+<span class="pl-k">def</span> <span class="pl-en">reverse_process</span>(<span class="pl-s1">xt_corrupted</span>, <span class="pl-v">Q_t</span>, <span class="pl-c1">T</span>):
     <span class="pl-s1">xt_denoised</span> <span class="pl-c1">=</span> <span class="pl-s1">xt_corrupted</span>
-    <span class="pl-k">for</span> <span class="pl-s1">t</span> <span class="pl-c1">in</span> <span class="pl-en">range</span>(<span class="pl-v">T</span>, <span class="pl-c1">0</span>, <span class="pl-c1">-</span><span class="pl-c1">1</span>):
+    <span class="pl-k">for</span> <span class="pl-s1">t</span> <span class="pl-c1">in</span> <span class="pl-en">range</span>(<span class="pl-c1">T</span>, <span class="pl-c1">0</span>, <span class="pl-c1">-</span><span class="pl-c1">1</span>):
         <span class="pl-s1">xt_denoised</span> <span class="pl-c1">=</span> <span class="pl-en">denoise</span>(<span class="pl-s1">xt_denoised</span>, <span class="pl-v">Q_t</span>)  <span class="pl-c"># 逐步去噪</span>
     <span class="pl-k">return</span> <span class="pl-s1">xt_denoised</span>
 
 <span class="pl-c"># 训练目标：Mask Token 预测</span>
-<span class="pl-k">def</span> <span class="pl-en">train_model</span>(<span class="pl-s1">x0</span>, <span class="pl-v">T</span>):
-    <span class="pl-v">Q_t</span> <span class="pl-c1">=</span> <span class="pl-en">transition_matrix</span>(<span class="pl-s1">alpha_t</span>, <span class="pl-s1">beta_t</span>, <span class="pl-v">K</span>)  <span class="pl-c"># 获取转移矩阵</span>
-    <span class="pl-s1">xt_corrupted</span> <span class="pl-c1">=</span> <span class="pl-en">forward_process</span>(<span class="pl-s1">x0</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>)  <span class="pl-c"># 扩散过程</span>
-    <span class="pl-s1">xt_predicted</span> <span class="pl-c1">=</span> <span class="pl-en">reverse_process</span>(<span class="pl-s1">xt_corrupted</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>)  <span class="pl-c"># 预测并恢复</span>
+<span class="pl-k">def</span> <span class="pl-en">train_model</span>(<span class="pl-s1">x0</span>, <span class="pl-c1">T</span>):
+    <span class="pl-v">Q_t</span> <span class="pl-c1">=</span> <span class="pl-en">transition_matrix</span>(<span class="pl-s1">alpha_t</span>, <span class="pl-s1">beta_t</span>, <span class="pl-c1">K</span>)  <span class="pl-c"># 获取转移矩阵</span>
+    <span class="pl-s1">xt_corrupted</span> <span class="pl-c1">=</span> <span class="pl-en">forward_process</span>(<span class="pl-s1">x0</span>, <span class="pl-v">Q_t</span>, <span class="pl-c1">T</span>)  <span class="pl-c"># 扩散过程</span>
+    <span class="pl-s1">xt_predicted</span> <span class="pl-c1">=</span> <span class="pl-en">reverse_process</span>(<span class="pl-s1">xt_corrupted</span>, <span class="pl-v">Q_t</span>, <span class="pl-c1">T</span>)  <span class="pl-c"># 预测并恢复</span>
 
     <span class="pl-c"># 计算原始图像和预测图像之间的损失</span>
     <span class="pl-s1">loss</span> <span class="pl-c1">=</span> <span class="pl-en">compute_loss</span>(<span class="pl-s1">x0</span>, <span class="pl-s1">xt_predicted</span>)
     <span class="pl-k">return</span> <span class="pl-s1">loss</span>
 
 <span class="pl-c"># 推理过程：生成图像</span>
-<span class="pl-k">def</span> <span class="pl-en">generate_image</span>(<span class="pl-v">T</span>):
+<span class="pl-k">def</span> <span class="pl-en">generate_image</span>(<span class="pl-c1">T</span>):
     <span class="pl-s1">xt_noise</span> <span class="pl-c1">=</span> <span class="pl-en">sample_random_noise</span>()  <span class="pl-c"># 采样随机噪声</span>
-    <span class="pl-s1">xt_denoised</span> <span class="pl-c1">=</span> <span class="pl-en">reverse_process</span>(<span class="pl-s1">xt_noise</span>, <span class="pl-v">Q_t</span>, <span class="pl-v">T</span>)  <span class="pl-c"># 去噪生成新图像</span>
+    <span class="pl-s1">xt_denoised</span> <span class="pl-c1">=</span> <span class="pl-en">reverse_process</span>(<span class="pl-s1">xt_noise</span>, <span class="pl-v">Q_t</span>, <span class="pl-c1">T</span>)  <span class="pl-c"># 去噪生成新图像</span>
     <span class="pl-k">return</span> <span class="pl-s1">xt_denoised</span></pre></div>
 <h2>Qt 转移矩阵</h2>
 <h3>基本定义</h3>

@@ -111,13 +111,13 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 根据 [output_type]参数，返回图像的不同格式（如 PIL 图像或 NumPy 数组）。</p>
 <div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-k">def</span> <span class="pl-en">__call__</span>(<span class="pl-s1">self</span>, ...):
     <span class="pl-c"># 1. Check inputs</span>
-    <span class="pl-s1">self</span>.<span class="pl-en">check_inputs</span>(...)
+    <span class="pl-s1">self</span>.<span class="pl-c1">check_inputs</span>(...)
 
     <span class="pl-c"># 2. Set internal parameters</span>
-    <span class="pl-s1">self</span>.<span class="pl-s1">_guidance_scale</span> <span class="pl-c1">=</span> <span class="pl-s1">guidance_scale</span>
-    <span class="pl-s1">self</span>.<span class="pl-s1">_clip_skip</span> <span class="pl-c1">=</span> <span class="pl-s1">clip_skip</span>
-    <span class="pl-s1">self</span>.<span class="pl-s1">_joint_attention_kwargs</span> <span class="pl-c1">=</span> <span class="pl-s1">joint_attention_kwargs</span>
-    <span class="pl-s1">self</span>.<span class="pl-s1">_interrupt</span> <span class="pl-c1">=</span> <span class="pl-c1">False</span>
+    <span class="pl-s1">self</span>.<span class="pl-c1">_guidance_scale</span> <span class="pl-c1">=</span> <span class="pl-s1">guidance_scale</span>
+    <span class="pl-s1">self</span>.<span class="pl-c1">_clip_skip</span> <span class="pl-c1">=</span> <span class="pl-s1">clip_skip</span>
+    <span class="pl-s1">self</span>.<span class="pl-c1">_joint_attention_kwargs</span> <span class="pl-c1">=</span> <span class="pl-s1">joint_attention_kwargs</span>
+    <span class="pl-s1">self</span>.<span class="pl-c1">_interrupt</span> <span class="pl-c1">=</span> <span class="pl-c1">False</span>
 
     <span class="pl-c"># 3. Define call parameters</span>
     <span class="pl-k">if</span> <span class="pl-en">isinstance</span>(<span class="pl-s1">prompt</span>, <span class="pl-s1">str</span>):
@@ -127,27 +127,27 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     <span class="pl-k">else</span>:
         ...
 
-    <span class="pl-s1">device</span> <span class="pl-c1">=</span> <span class="pl-s1">self</span>.<span class="pl-s1">_execution_device</span>
+    <span class="pl-s1">device</span> <span class="pl-c1">=</span> <span class="pl-s1">self</span>.<span class="pl-c1">_execution_device</span>
 
     <span class="pl-c"># 4. Prepare latents</span>
-    <span class="pl-s1">latents</span> <span class="pl-c1">=</span> <span class="pl-s1">self</span>.<span class="pl-en">prepare_latents</span>(...)
+    <span class="pl-s1">latents</span> <span class="pl-c1">=</span> <span class="pl-s1">self</span>.<span class="pl-c1">prepare_latents</span>(...)
 
     <span class="pl-c"># 5. Encode prompt</span>
-    <span class="pl-s1">prompt_embeds</span>, <span class="pl-s1">negative_prompt_embeds</span>, <span class="pl-s1">pooled_prompt_embeds</span>, <span class="pl-s1">negative_pooled_prompt_embeds</span> <span class="pl-c1">=</span> <span class="pl-s1">self</span>.<span class="pl-en">encode_prompt</span>(...)
+    <span class="pl-s1">prompt_embeds</span>, <span class="pl-s1">negative_prompt_embeds</span>, <span class="pl-s1">pooled_prompt_embeds</span>, <span class="pl-s1">negative_pooled_prompt_embeds</span> <span class="pl-c1">=</span> <span class="pl-s1">self</span>.<span class="pl-c1">encode_prompt</span>(...)
 
     <span class="pl-c"># 6. Retrieve timesteps</span>
     <span class="pl-s1">timesteps</span>, <span class="pl-s1">num_inference_steps</span> <span class="pl-c1">=</span> <span class="pl-en">retrieve_timesteps</span>(...)
 
     <span class="pl-c"># 7. Generate images</span>
     <span class="pl-k">for</span> <span class="pl-s1">t</span> <span class="pl-c1">in</span> <span class="pl-s1">timesteps</span>:
-        <span class="pl-s1">latents</span> <span class="pl-c1">=</span> <span class="pl-s1">scheduler</span>.<span class="pl-en">step</span>(...)
+        <span class="pl-s1">latents</span> <span class="pl-c1">=</span> <span class="pl-s1">scheduler</span>.<span class="pl-c1">step</span>(...)
 
     <span class="pl-c"># 8. Post-process</span>
-    <span class="pl-s1">images</span> <span class="pl-c1">=</span> <span class="pl-s1">vae</span>.<span class="pl-en">decode</span>(<span class="pl-s1">latents</span>)
+    <span class="pl-s1">images</span> <span class="pl-c1">=</span> <span class="pl-s1">vae</span>.<span class="pl-c1">decode</span>(<span class="pl-s1">latents</span>)
 
     <span class="pl-c"># 9. Return results</span>
     <span class="pl-k">if</span> <span class="pl-s1">return_dict</span>:
-        <span class="pl-k">return</span> <span class="pl-v">StableDiffusion3PipelineOutput</span>(<span class="pl-s1">images</span><span class="pl-c1">=</span><span class="pl-s1">images</span>)
+        <span class="pl-k">return</span> <span class="pl-en">StableDiffusion3PipelineOutput</span>(<span class="pl-s1">images</span><span class="pl-c1">=</span><span class="pl-s1">images</span>)
     <span class="pl-k">else</span>:
         <span class="pl-k">return</span> <span class="pl-s1">images</span></pre></div>
 <h1>SD3Transformer2DModel</h1>
@@ -164,7 +164,7 @@ $$z_{t -1} = z_t + dt * s_{\theta}(x_t, t) ;
  \frac{d x_t}{dt} = s_{\theta}(x_t, t)$$
 <h1>train</h1>
 <h2>compute_loss_weighting_for_sd3</h2>
-<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-k">def</span> <span class="pl-en">compute_loss_weighting_for_sd3</span>(<span class="pl-s1">weighting_scheme</span>: <span class="pl-s1">str</span>, <span class="pl-s1">sigmas</span><span class="pl-c1">=</span><span class="pl-c1">None</span>):
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-k">def</span> <span class="pl-en">compute_loss_weighting_for_sd3</span>(<span class="pl-s1">weighting_scheme</span>: <span class="pl-smi">str</span>, <span class="pl-s1">sigmas</span><span class="pl-c1">=</span><span class="pl-c1">None</span>):
     <span class="pl-s">"""Computes loss weighting scheme for SD3 training.</span>
 <span class="pl-s"></span>
 <span class="pl-s">    Courtesy: This was contributed by Rafie Walker in https://github.com/huggingface/diffusers/pull/8528.</span>
@@ -172,12 +172,12 @@ $$z_{t -1} = z_t + dt * s_{\theta}(x_t, t) ;
 <span class="pl-s">    SD3 paper reference: https://arxiv.org/abs/2403.03206v1.</span>
 <span class="pl-s">    """</span>
     <span class="pl-k">if</span> <span class="pl-s1">weighting_scheme</span> <span class="pl-c1">==</span> <span class="pl-s">"sigma_sqrt"</span>:
-        <span class="pl-s1">weighting</span> <span class="pl-c1">=</span> (<span class="pl-s1">sigmas</span><span class="pl-c1">**</span><span class="pl-c1">-</span><span class="pl-c1">2.0</span>).<span class="pl-en">float</span>()
+        <span class="pl-s1">weighting</span> <span class="pl-c1">=</span> (<span class="pl-s1">sigmas</span><span class="pl-c1">**</span><span class="pl-c1">-</span><span class="pl-c1">2.0</span>).<span class="pl-c1">float</span>()
     <span class="pl-k">elif</span> <span class="pl-s1">weighting_scheme</span> <span class="pl-c1">==</span> <span class="pl-s">"cosmap"</span>:
         <span class="pl-s1">bot</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-c1">2</span> <span class="pl-c1">*</span> <span class="pl-s1">sigmas</span> <span class="pl-c1">+</span> <span class="pl-c1">2</span> <span class="pl-c1">*</span> <span class="pl-s1">sigmas</span><span class="pl-c1">**</span><span class="pl-c1">2</span>
-        <span class="pl-s1">weighting</span> <span class="pl-c1">=</span> <span class="pl-c1">2</span> <span class="pl-c1">/</span> (<span class="pl-s1">math</span>.<span class="pl-s1">pi</span> <span class="pl-c1">*</span> <span class="pl-s1">bot</span>)
+        <span class="pl-s1">weighting</span> <span class="pl-c1">=</span> <span class="pl-c1">2</span> <span class="pl-c1">/</span> (<span class="pl-s1">math</span>.<span class="pl-c1">pi</span> <span class="pl-c1">*</span> <span class="pl-s1">bot</span>)
     <span class="pl-k">else</span>:
-        <span class="pl-s1">weighting</span> <span class="pl-c1">=</span> <span class="pl-s1">torch</span>.<span class="pl-en">ones_like</span>(<span class="pl-s1">sigmas</span>)
+        <span class="pl-s1">weighting</span> <span class="pl-c1">=</span> <span class="pl-s1">torch</span>.<span class="pl-c1">ones_like</span>(<span class="pl-s1">sigmas</span>)
     <span class="pl-k">return</span> <span class="pl-s1">weighting</span></pre></div>
 <p>参考SD3论文公式(18), 公式(22)</p>
 $$w_{t}^{\pi} = \frac{t}{1 - t} \pi(t);
