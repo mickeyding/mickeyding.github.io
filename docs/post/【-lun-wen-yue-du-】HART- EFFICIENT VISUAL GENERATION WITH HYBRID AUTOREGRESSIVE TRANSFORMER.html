@@ -10,10 +10,12 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="# 目的
+<meta name="description" content="
+# 目的
 本文提出了一种新型视觉生成模型——混合自回归变压器（HART）。">
 <meta property="og:title" content="【论文阅读】HART: EFFICIENT VISUAL GENERATION WITH HYBRID AUTOREGRESSIVE TRANSFORMER">
-<meta property="og:description" content="# 目的
+<meta property="og:description" content="
+# 目的
 本文提出了一种新型视觉生成模型——混合自回归变压器（HART）。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://mickeyding.github.io/post/%E3%80%90-lun-wen-yue-du-%E3%80%91HART-%20EFFICIENT%20VISUAL%20GENERATION%20WITH%20HYBRID%20AUTOREGRESSIVE%20TRANSFORMER.html">
@@ -119,15 +121,6 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li><strong>输入</strong>：自回归变压器的最后一层隐层状态（the last layer hidden states from our scalable-resolution AR transformer）-&gt; 近似模拟混合编码器中的连续视觉特征；<br>
 和离散标记（discrete tokens predicted in the last VAR sampling step）-&gt; 不同分辨率下离散token进行上采样到最后一个分辨率再加和；</li>
 </ul>
-<p><strong>文章没有明确说清楚是对什么加噪，既然模型的输出是residual tokens，那应该是将Encoder出来的连续特征 - 不同分辨率下离散token进行上采样到最后一个分辨率再加和得到的residual tokens进行加噪；然后condition为自回归变压器的最后一层隐层状态和离散标记；</strong></p>
-<ul>
-<li>
-<p><strong>模型结构</strong>：基于多层感知机（MLP），显著简化了扩散模型的计算开销。</p>
-</li>
-<li>
-<p><strong>输出</strong>：和MAR不同，MAR predicts full continuous tokens, HART models residual tokens，因此训练难度降低，推理效率提升，仅需 8 步即可完成残差标记的去噪；</p>
-</li>
-</ul>
 <h4><strong>自回归变压器的最后一层隐层状态（Hidden States）</strong></h4>
 <ul>
 <li><strong>作用</strong>：
@@ -153,16 +146,13 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </ul>
 </li>
 </ul>
-<h4><strong>Residual Tokens 的生成目标</strong></h4>
+<p><strong>文章没有明确说清楚是对什么加噪，既然模型的输出是residual tokens，那应该是将Encoder出来的连续特征 - 不同分辨率下离散token进行上采样到最后一个分辨率再加和得到的residual tokens进行加噪；然后condition为自回归变压器的最后一层隐层状态和离散标记；</strong></p>
 <ul>
-<li><strong>定义</strong>：
-<ul>
-<li>连续特征中未被离散标记捕获的细节部分，即：<br>
-$$<br>
-\text{Residual Tokens} = \text{Encoder的连续特征} - \text{离散标记的总和}<br>
-$$</li>
-<li>这些细节信息表示图像中的高频成分，如细腻的纹理和细节。</li>
-</ul>
+<li>
+<p><strong>模型结构</strong>：基于多层感知机（MLP），显著简化了扩散模型的计算开销。</p>
+</li>
+<li>
+<p><strong>输出</strong>：和MAR不同，MAR predicts full continuous tokens, HART models residual tokens，因此训练难度降低，推理效率提升，仅需 8 步即可完成残差标记的去噪；</p>
 </li>
 </ul>
 <h3><strong>采样过程</strong>：</h3>
@@ -170,24 +160,33 @@ $$</li>
 <li>训练阶段：采用标准扩散方法，通过 1000 步噪声日程对残差标记建模。</li>
 <li>推理阶段：仅需 8 步即可完成残差标记的去噪，相比传统扩散模型（通常需要 30-50 步），效率提升显著。</li>
 </ul>
+<h4><strong>Residual Tokens 的生成目标</strong></h4>
+<ul>
+<li><strong>定义</strong>：
+<ul>
+<li>连续特征中未被离散标记捕获的细节部分，即：<br>
+$$<br>
+Residual Tokens =Encoder的连续特征 - 离散标记的总和<br>
+$$</li>
+<li>这些细节信息表示图像中的高频成分，如细腻的纹理和细节。</li>
+</ul>
+</li>
+</ul>
 <h4><strong>加噪机制</strong></h4>
 <p><strong>加噪对象</strong>：<br>
 加噪的应该是 <strong>Residual Tokens</strong>，即上述连续特征与离散标记的总和之间的差异。</p>
-<ul>
-<li>加噪目的是模拟数据的退化过程，以便在扩散过程中逐步重建这些高频细节。</li>
-</ul>
 <p><strong>过程理解</strong>：</p>
 <ol>
 <li>
-<p><strong>加噪起点</strong>：<br>
-$$<br>
-\text{Residual Tokens}_{t=0} = \text{Encoder连续特征} - \text{Sum of Discrete Tokens}<br>
-$$<br>
-在扩散训练中，对 Residual Tokens 加入逐步递增的高斯噪声：<br>
-$$<br>
+<p><strong>加噪起点</strong>：</p>
+<p>$$
+\text{Residual Tokens}_{t=0} = \text{Encoder连续特征} - \text{Sum of Discrete Tokens}
+$$</p>
+<p>在扩散训练中，对 Residual Tokens 加入逐步递增的高斯噪声：</p>
+<p>$$<br>
 \text{Residual Tokens}<em>t = \alpha_t \cdot \text{Residual Tokens}</em>{t=0} + \beta_t \cdot \mathcal{N}(0, I)<br>
-$$<br>
-其中 ( t ) 为时间步，(\alpha_t) 和 (\beta_t) 为加权系数。</p>
+$$</p>
+<p>其中$ ( t ) $ 为时间步，$(\alpha_t) $ 和 $ (\beta_t) $ 为加权系数。</p>
 </li>
 <li>
 <p><strong>条件输入</strong>：</p>
@@ -198,10 +197,12 @@ $$<br>
 <li>
 <p><strong>采样过程</strong>：</p>
 <ul>
-<li>在推理阶段，通过扩散过程逐步去噪生成高质量的 Residual Tokens：<br>
-$$<br>
+<li>
+<p>在推理阶段，通过扩散过程逐步去噪生成高质量的 Residual Tokens：</p>
+<p>$$<br>
 \text{Residual Tokens}_{t-1} \to \text{Residual Tokens}_0<br>
-$$</li>
+$$</p>
+</li>
 </ul>
 </li>
 </ol>
@@ -224,13 +225,8 @@ $$</li>
 </ul>
 </li>
 </ul>
-<h3><strong>优化点</strong>：</h3>
-<ul>
-<li>与全标记扩散建模（如 MAR 模型）相比，残差标记建模的难度显著降低。</li>
-<li>通过引入键值缓存（KV 缓存）和稀疏注意力机制，进一步减少了计算负担。</li>
-</ul>
-<p>##三 <strong>可扩展分辨率自回归变压器</strong><br>
-HART 使用了一个专门设计的自回归变压器，用于高分辨率图像生成。</p>
+<h2>三 <strong>可扩展分辨率自回归变压器</strong></h2>
+<p>HART 使用了一个专门设计的自回归变压器，用于高分辨率图像生成。</p>
 <ol>
 <li>
 <p><strong>多模态建模</strong>：</p>
@@ -260,7 +256,7 @@ HART 使用了一个专门设计的自回归变压器，用于高分辨率图像
 </ul>
 </li>
 </ol>
-<h2>4. <strong>整体生成流程</strong></h2>
+<h2>四. <strong>整体生成流程</strong></h2>
 <ol>
 <li><strong>输入处理</strong>：
 <ul>
@@ -379,6 +375,6 @@ function iFrameLoading(){
 
 
 </script>
-<script async type='text/javascript' src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'></script>
+<script async type='text/javascript' src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'></script><script>MathJax = {tex: {inlineMath: [["$", "$"]]}};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 </html>
