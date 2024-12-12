@@ -10,12 +10,10 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="
-# 目的
+<meta name="description" content="# 目的
 本文提出了一种新型视觉生成模型——混合自回归变压器（HART）。">
 <meta property="og:title" content="【论文阅读】HART: EFFICIENT VISUAL GENERATION WITH HYBRID AUTOREGRESSIVE TRANSFORMER">
-<meta property="og:description" content="
-# 目的
+<meta property="og:description" content="# 目的
 本文提出了一种新型视觉生成模型——混合自回归变压器（HART）。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://mickeyding.github.io/post/%E3%80%90-lun-wen-yue-du-%E3%80%91HART-%20EFFICIENT%20VISUAL%20GENERATION%20WITH%20HYBRID%20AUTOREGRESSIVE%20TRANSFORMER.html">
@@ -79,7 +77,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     <div id="content">
 <div class="markdown-body" id="postBody"><h1>目的</h1>
 <p>本文提出了一种新型视觉生成模型——混合自回归变压器（HART）。其核心目标是实现高效、高分辨率的图像生成（1024×1024像素），并在图像质量上达到与扩散模型相当的水平，同时显著提升生成效率。为了解决现有自回归模型中离散编码器重建性能不足及训练成本高昂的问题，HART引入了混合编码器和高效的残差扩散模块。</p>
-<p>#方法</p>
+<h1>方法</h1>
 <p>本文的核心方法围绕混合编码器、残差扩散模块和可扩展分辨率自回归变压器设计，以下是具体实现细节：</p>
 <h2>一 <strong>混合编码器</strong></h2>
 <p>混合编码器是 HART 的关键创新之一，通过结合离散和连续特征，提升了图像生成的质量和效率。<br>
@@ -142,17 +140,16 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>
 <p><strong>作用</strong>：</p>
 <ul>
-<li>提供图像的静态全局结构信息，作为辅助输入。</li>
-</ul>
+<li>
+<p>提供图像的静态全局结构信息，作为辅助输入。</p>
 </li>
-</ul>
-<p><strong>文章没有明确说清楚是对什么加噪，既然模型的输出是residual tokens，那应该是将Encoder出来的连续特征 - 不同分辨率下离散token进行上采样到最后一个分辨率再加和得到的residual tokens进行加噪；然后condition为自回归变压器的最后一层隐层状态和离散标记；</strong></p>
-<ul>
 <li>
 <p><strong>模型结构</strong>：基于多层感知机（MLP），显著简化了扩散模型的计算开销。</p>
 </li>
 <li>
 <p><strong>输出</strong>：和MAR不同，MAR predicts full continuous tokens, HART models residual tokens，因此训练难度降低，推理效率提升，仅需 8 步即可完成残差标记的去噪；</p>
+</li>
+</ul>
 </li>
 </ul>
 <h3><strong>采样过程</strong>：</h3>
