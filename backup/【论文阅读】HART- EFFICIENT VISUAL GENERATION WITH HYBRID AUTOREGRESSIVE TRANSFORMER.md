@@ -31,13 +31,11 @@
 ![image](https://github.com/user-attachments/assets/f097d539-fa68-4985-bdfd-5dfa8b64e739)
 
 ###  **模块设计**：
-   - **输入**：自回归变压器的最后一层隐层状态（the last layer hidden states from our scalable-resolution AR transformer）-> 近似模拟混合编码器中的连续视觉特征；
-和离散标记（discrete tokens predicted in the last VAR sampling step）-> 不同分辨率下离散token进行上采样到最后一个分辨率再加和；
 
 #### **自回归变压器的最后一层隐层状态（Hidden States）**
 - **作用**：
   - 提供全局上下文信息，编码了离散标记和输入条件（如文本提示）之间的关系。
-  - 类似连续特征的高维表征，保留了图像生成中的动态特性。
+  - 类似连续特征的高维表征，保留了图像生成中的动态特性。近似模拟混合编码器中的连续视觉特征
   
 #### **离散标记（Discrete Tokens）**
 - **来源**：
