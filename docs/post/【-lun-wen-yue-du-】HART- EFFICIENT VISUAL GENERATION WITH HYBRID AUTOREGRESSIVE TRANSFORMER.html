@@ -114,7 +114,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <h2>二 <strong>残差扩散模块</strong></h2>
 <p>为高效建模连续标记的细节信息，HART 使用了一种轻量化的残差扩散模块。<br>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/f097d539-fa68-4985-bdfd-5dfa8b64e739"><img src="https://github.com/user-attachments/assets/f097d539-fa68-4985-bdfd-5dfa8b64e739" alt="image" style="max-width: 100%;"></a></p>
-<h3><strong>模块设计</strong>：</h3>
+<h3><strong>输入</strong>：</h3>
 <h4><strong>自回归变压器的最后一层隐层状态（Hidden States）</strong></h4>
 <ul>
 <li><strong>作用</strong>：
@@ -153,7 +153,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>训练阶段：采用标准扩散方法，通过 1000 步噪声日程对残差标记建模。</li>
 <li>推理阶段：仅需 8 步即可完成残差标记的去噪，相比传统扩散模型（通常需要 30-50 步），效率提升显著。</li>
 </ul>
-<h4><strong>Residual Tokens 的生成目标</strong></h4>
+<h3>**生成目标：Residual Tokens **</h3>
 <ul>
 <li><strong>定义</strong>：
 <ul>
@@ -165,7 +165,7 @@ $$</li>
 </ul>
 </li>
 </ul>
-<h4><strong>加噪机制</strong></h4>
+<h3><strong>加噪机制</strong></h3>
 <p><strong>加噪对象</strong>：<br>
 加噪的应该是 <strong>Residual Tokens</strong>，即上述连续特征与离散标记的总和之间的差异。</p>
 <p><strong>过程理解</strong>：</p>
@@ -177,7 +177,7 @@ $$</li>
 $$</p>
 <p>在扩散训练中，对 Residual Tokens 加入逐步递增的高斯噪声：</p>
 <p>$$<br>
-\text{Residual Tokens}<em>t = \alpha_t \cdot \text{Residual Tokens}</em>{t=0} + \beta_t \cdot \mathcal{N}(0, I)<br>
+{Residual Tokens}<em>t = \alpha_t * {Residual Tokens}</em>{t=0} + \beta_t * \mathcal{N}(0, I)<br>
 $$</p>
 <p>其中$ ( t ) $ 为时间步，$(\alpha_t) $ 和 $ (\beta_t) $ 为加权系数。</p>
 </li>

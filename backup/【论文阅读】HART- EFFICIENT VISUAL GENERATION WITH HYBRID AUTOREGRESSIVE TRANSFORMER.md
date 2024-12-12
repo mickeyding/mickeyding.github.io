@@ -30,7 +30,7 @@
 为高效建模连续标记的细节信息，HART 使用了一种轻量化的残差扩散模块。
 ![image](https://github.com/user-attachments/assets/f097d539-fa68-4985-bdfd-5dfa8b64e739)
 
-###  **模块设计**：
+###  **输入**：
 
 #### **自回归变压器的最后一层隐层状态（Hidden States）**
 - **作用**：
@@ -50,14 +50,11 @@
    - **输出**：和MAR不同，MAR predicts full continuous tokens, HART models residual tokens，因此训练难度降低，推理效率提升，仅需 8 步即可完成残差标记的去噪；
 
 
-
-
-
 ###  **采样过程**：
    - 训练阶段：采用标准扩散方法，通过 1000 步噪声日程对残差标记建模。
    - 推理阶段：仅需 8 步即可完成残差标记的去噪，相比传统扩散模型（通常需要 30-50 步），效率提升显著。
 
-#### **Residual Tokens 的生成目标**
+### **生成目标：Residual Tokens **
 - **定义**：
   - 连续特征中未被离散标记捕获的细节部分，即：
     $$
@@ -65,7 +62,7 @@
     $$
   - 这些细节信息表示图像中的高频成分，如细腻的纹理和细节。
 
-####  **加噪机制**
+###  **加噪机制**
 
 **加噪对象**：  
 加噪的应该是 **Residual Tokens**，即上述连续特征与离散标记的总和之间的差异。  
@@ -80,7 +77,7 @@
    在扩散训练中，对 Residual Tokens 加入逐步递增的高斯噪声：
 
    $$
-   \text{Residual Tokens}_t = \alpha_t \cdot \text{Residual Tokens}_{t=0} + \beta_t \cdot \mathcal{N}(0, I)
+   {Residual Tokens}_t = \alpha_t * {Residual Tokens}_{t=0} + \beta_t * \mathcal{N}(0, I)
    $$
 
    其中$ \( t \) $ 为时间步，$\(\alpha_t\) $ 和 $ \(\beta_t\) $ 为加权系数。
