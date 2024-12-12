@@ -77,7 +77,7 @@
    在扩散训练中，对 Residual Tokens 加入逐步递增的高斯噪声：
 
    $$
-   {Residual Tokens}_t = \alpha_t * {Residual Tokens}_{t=0} + \beta_t * \mathcal{N}(0, I)
+   {Residual Tokens}_{t} = \alpha_{t} * {Residual Tokens}_{t=0} + \beta_t * \mathcal{N}(0, I)
    $$
 
    其中$ \( t \) $ 为时间步，$\(\alpha_t\) $ 和 $ \(\beta_t\) $ 为加权系数。
