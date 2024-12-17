@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="## 位姿变换
+
+---丁晨静（dingchenjing@sensetime.com)
+
+#### 各坐标系变换总结 
+
+![图片1](https://github.com/user-attachments/assets/5c33040e-56fe-4de2-9bfb-befb3bcb2971)
+
+
+[//]: # 'Rx:右手系中绕x轴旋转矩阵；Ry:右手系中绕y轴 旋转矩阵；Rz:右手系中绕z轴旋转矩阵；'
+
+#### 旋转矩阵的变换
+
+##### 坐标系运动方向正负判定
+
+- 坐标系运动方向判断：右手使用右手螺旋定则，左手使用左手螺旋定则，大拇指方向为坐标轴指向，四指指向为正
+
+- 坐标系运动方向的正负和坐标点运动的方向相反
+
+  
+
+##### 变换顺序
+
+在右手坐标系中，是左结合，即最后一个矩阵最先应用
+
+##### 静态坐标轴旋转和动态坐标轴旋转
+
+如何从坐标系变换得到在初始坐标系下变换后的点的坐标？
+
+坐标系绕动态轴运算：**每一次是按变换后的新的坐标系的轴运算**，得到的角度取负再带入R矩阵求变换矩阵
+
+与坐标按初始坐标系固定轴旋转效果一致。">
+<meta property="og:title" content="矩阵基本变换">
+<meta property="og:description" content="## 位姿变换
+
+---丁晨静（dingchenjing@sensetime.com)
+
+#### 各坐标系变换总结 
+
+![图片1](https://github.com/user-attachments/assets/5c33040e-56fe-4de2-9bfb-befb3bcb2971)
+
+
+[//]: # 'Rx:右手系中绕x轴旋转矩阵；Ry:右手系中绕y轴 旋转矩阵；Rz:右手系中绕z轴旋转矩阵；'
+
+#### 旋转矩阵的变换
+
+##### 坐标系运动方向正负判定
+
+- 坐标系运动方向判断：右手使用右手螺旋定则，左手使用左手螺旋定则，大拇指方向为坐标轴指向，四指指向为正
+
+- 坐标系运动方向的正负和坐标点运动的方向相反
+
+  
+
+##### 变换顺序
+
+在右手坐标系中，是左结合，即最后一个矩阵最先应用
+
+##### 静态坐标轴旋转和动态坐标轴旋转
+
+如何从坐标系变换得到在初始坐标系下变换后的点的坐标？
+
+坐标系绕动态轴运算：**每一次是按变换后的新的坐标系的轴运算**，得到的角度取负再带入R矩阵求变换矩阵
+
+与坐标按初始坐标系固定轴旋转效果一致。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://mickeyding.github.io/post/ju-zhen-ji-ben-bian-huan.html">
+<meta property="og:image" content="https://github.githubassets.com/favicons/favicon.svg">
+<title>矩阵基本变换</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">矩阵基本变换</h1>
+<div class="title-right">
+    <a href="https://mickeyding.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/mickeyding/mickeyding.github.io/issues/13" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h2>位姿变换</h2>
+<p>---丁晨静（<a href="mailto:dingchenjing@sensetime.com">dingchenjing@sensetime.com</a>)</p>
+<h4>各坐标系变换总结</h4>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/5c33040e-56fe-4de2-9bfb-befb3bcb2971"><img src="https://github.com/user-attachments/assets/5c33040e-56fe-4de2-9bfb-befb3bcb2971" alt="图片1" style="max-width: 100%;"></a></p>
+<h4>旋转矩阵的变换</h4>
+<h5>坐标系运动方向正负判定</h5>
+<ul>
+<li>
+<p>坐标系运动方向判断：右手使用右手螺旋定则，左手使用左手螺旋定则，大拇指方向为坐标轴指向，四指指向为正</p>
+</li>
+<li>
+<p>坐标系运动方向的正负和坐标点运动的方向相反</p>
+</li>
+</ul>
+<h5>变换顺序</h5>
+<p>在右手坐标系中，是左结合，即最后一个矩阵最先应用</p>
+<h5>静态坐标轴旋转和动态坐标轴旋转</h5>
+<p>如何从坐标系变换得到在初始坐标系下变换后的点的坐标？</p>
+<p>坐标系绕动态轴运算：<strong>每一次是按变换后的新的坐标系的轴运算</strong>，得到的角度取负再带入R矩阵求变换矩阵</p>
+<p>与坐标按初始坐标系固定轴旋转效果一致。</p>
+<h5>变换实例</h5>
+<p>下面以cityscapes涉及的右手相机坐标系O1转换到右手标准相机坐标系O2为例：</p>
+<ol>
+<li>首先绕O1 x轴 旋转-90°，得到坐标系M1（forward:x, left:z, down:y)；（相当于某点绕O1x轴旋转+90°）</li>
+<li>再绕M1的y轴旋转+90°，得到坐标系O2；（相当于某点再绕M1y轴旋转-90°）</li>
+</ol>
+<p>综上变换矩阵为 T = Ry(-90)Rx(90)</p>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/59bf56dc-f3f4-4195-9f01-78c571c7aac5"><img src="https://github.com/user-attachments/assets/59bf56dc-f3f4-4195-9f01-78c571c7aac5" alt="图片2" style="max-width: 100%;"></a></p>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-c"># 向量绕固定轴旋转</span>
+<span class="pl-c1">R</span> <span class="pl-c1">=</span> <span class="pl-en">euler_matrix</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">90</span>), <span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">-</span><span class="pl-c1">90</span>), <span class="pl-c1">0</span>, <span class="pl-s">'sxyz'</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">1</span>,<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>]])
+<span class="pl-s1">y</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">0</span>,<span class="pl-c1">1</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>]])
+<span class="pl-s1">z</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>,<span class="pl-c1">1</span>]])                       
+<span class="pl-s1">z_new</span> <span class="pl-c1">=</span> <span class="pl-c1">R</span> @ <span class="pl-s1">x</span>.<span class="pl-c1">T</span>
+<span class="pl-s1">neg_x_new</span> <span class="pl-c1">=</span> <span class="pl-c1">R</span> @ <span class="pl-s1">y</span>.<span class="pl-c1">T</span>            
+<span class="pl-s1">neg_y_new</span> <span class="pl-c1">=</span> <span class="pl-c1">R</span> @ <span class="pl-s1">z</span>.<span class="pl-c1">T</span>
+<span class="pl-en">print</span>(<span class="pl-s1">neg_x_new</span>.<span class="pl-c1">T</span>, <span class="pl-s1">neg_y_new</span>.<span class="pl-c1">T</span>, <span class="pl-s1">z_new</span>.<span class="pl-c1">T</span>) <span class="pl-c"># x-&gt;z; y-&gt;neg_x, z-&gt;neg_y</span>
+<span class="pl-s">"""</span>
+<span class="pl-s">eg_x_new.T, neg_y_new.T, z_new.T) # x-&gt;z; y-&gt;neg_x, z-&gt;neg_y</span>
+<span class="pl-s">8</span>
+<span class="pl-s">[[-1.000000e+00  6.123234e-17  6.123234e-17  1.000000e+00]] [[-6.12323400e-17 -1.00000000e+00  3.74939946e-33  1.00000000e+00]] [[6.123234e-17 0.000000e+00 1.000000e+00 1.000000e+00]]</span>
+<span class="pl-s">"""</span>
+<span class="pl-c">#经过验证，O1中的坐标转换到O2中的坐标</span></pre></div>
+<h5>旋转矩阵定义</h5>
+<ul>
+<li>
+<p>R旋转矩阵的定义是对坐标变换的定义，正向按上述方向确定，以下是右手坐标系R的定义</p>
+<p>$R_x(\theta) = \left[ \begin{matrix} 1 &amp; 0 &amp; 0 \ 0 &amp; cos \theta &amp; -sin \theta \ 0 &amp; sin \theta &amp; cos \theta  \end{matrix} \right]$ $R_y(\theta) = \left[ \begin{matrix} cos \theta &amp; 0 &amp; sin \theta \ 0 &amp; 1 &amp; 0 \ -sin \theta &amp; 0 &amp; cos \theta  \end{matrix} \right]$ $R_z<br>
+(\theta) = \left[ \begin{matrix} cos \theta &amp; -sin \theta &amp; 0 \ sin \theta &amp; cos \theta &amp; 0 \ 0 &amp; 0 &amp; 1  \end{matrix} \right]$</p>
+</li>
+<li>
+<p>以下是左手坐标系定义</p>
+<p>$R_x(\theta) = \left[ \begin{matrix} 1 &amp; 0 &amp; 0 \ 0 &amp; cos \theta &amp; sin \theta \ 0 &amp; -sin \theta &amp; cos \theta  \end{matrix} \right]$$R_y(\theta) = \left[ \begin{matrix} cos \theta &amp; 0 &amp; -sin \theta \ 0 &amp; 1 &amp; 0 \ sin \theta &amp; 0 &amp; cos \theta  \end{matrix} \right]$​ $R_z<br>
+(\theta) = \left[ \begin{matrix} cos \theta &amp; sin \theta &amp; 0 \ -sin \theta &amp; cos \theta &amp; 0 \ 0 &amp; 0 &amp; 1  \end{matrix} \right]$</p>
+</li>
+<li>
+<p>以下是绕任意轴n旋转</p>
+<p>$R( \hat n ,\theta) = \left[ \begin{matrix} n_x^2(1 - cos \theta) + cos \theta &amp; n_x n_y(1 - cos \theta) + n_z sin \theta &amp; n_x n_z (1 - cos \theta) - n_y sin \theta \ n_x n_y (1 - cos \theta) - n_z sin \theta &amp; n_y ^ 2 ( 1- cos \theta) +cos \theta &amp; n_y n_z (1 - cos \theta) + n_x sin \theta \ n_x n_z（1 - cos \ theta) + n_y sin \theta &amp; n_y n_z (1 - cos\theta) - n_x sin \theta &amp; n_x^2(1-cos \theta) + cos \theta \end{matrix} \right]$</p>
+</li>
+</ul>
+<h4>左手坐标系变换矩阵 转换到 右手坐标系变换矩阵</h4>
+<p>已知某点在左手坐标系O1中的变换矩阵Q，相当于该点坐标不变，左手坐标系 O1 -&gt; O2应用了变换矩阵Q'。下面对坐标系的变换，本质上还是求该点在原始坐标系中的变换。已知左手坐标系 O1 -&gt; O2的变换，如何求相应的在右手坐标系M1-&gt;M2的变换矩阵？假设同一个物体在O1，O2中的点为$p_{o1} = [x, y, z], p_{o2} = [x', y', z']$, 则要求 $p_{m1} = [x, -y, z], p_{m2} =[x', -y', z']$的变换。</p>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/994331a8-7280-49e0-87a4-15cf6958699f"><img src="https://github.com/user-attachments/assets/994331a8-7280-49e0-87a4-15cf6958699f" alt="图片3" style="max-width: 100%;"></a></p>
+<h5>直接变换推导</h5>
+<p>已知$R_l = [r_{ij}]$ 为o1-&gt;o2的旋转矩阵，$T_l = [t_i]$为o1-&gt;o2的平移向量， $ 0 &lt;= i &lt;=2, 0&lt;=j&lt;=2$</p>
+<p>则$p_{o1}-&gt;p_{o2}$ 可以表示为：</p>
+<p>​																				$$p_{o2} = R_l * p_{o1} + T_l$$</p>
+<p>则$p_{m1}-&gt;p_{m2}$ 可以表示为：</p>
+<p>​																			$$p_{m2} = S_{y} * p_{o2} $$ (坐标系O2,M2只是y轴相反)</p>
+<p>​																				$$= S_y (R_l * p_{o1} + T_l) \ 	= S_y(R_l * p_{o1}) + S_y * T_l$$ (矩阵乘法的分配律)</p>
+<p>​																		$$ = S_y R_l * p_{o1} + S_y * T_l$$ ( 矩阵乘法的结合律)</p>
+<p>​																		$$ = S_y R_l *S_y p_{m1} + S_y * T_l -----(1)$$</p>
+<p>综上，同一个物体在左手系中的转换变换到右手系中，平移矩阵需要沿某一个坐标轴取反（不一定是例子中的y轴），也就是$S_y$矩阵的作用，旋转矩阵需要变换为$S_y *R_l *S_y$, 平移矩阵变换为 $ S_y * T_l$.</p>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-k">def</span> <span class="pl-en">euler_matrix_left</span>(<span class="pl-s1">roll</span>, <span class="pl-s1">pitch</span>, <span class="pl-s1">yaw</span> ):
+    <span class="pl-s1">c_y</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">cos</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-s1">yaw</span>))
+    <span class="pl-s1">s_y</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">sin</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-s1">yaw</span>))
+    <span class="pl-s1">c_r</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">cos</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-s1">roll</span>))
+    <span class="pl-s1">s_r</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">sin</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-s1">roll</span>))
+    <span class="pl-s1">c_p</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">cos</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-s1">pitch</span>))
+    <span class="pl-s1">s_p</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">sin</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-s1">pitch</span>))
+    <span class="pl-s1">matrix</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">matrix</span>(<span class="pl-s1">np</span>.<span class="pl-c1">identity</span>(<span class="pl-c1">3</span>))
+    <span class="pl-s1">matrix</span>[<span class="pl-c1">0</span>, <span class="pl-c1">0</span>] <span class="pl-c1">=</span> <span class="pl-s1">c_p</span> <span class="pl-c1">*</span> <span class="pl-s1">c_y</span>
+    <span class="pl-s1">matrix</span>[<span class="pl-c1">0</span>, <span class="pl-c1">1</span>] <span class="pl-c1">=</span> <span class="pl-s1">c_y</span> <span class="pl-c1">*</span> <span class="pl-s1">s_p</span> <span class="pl-c1">*</span> <span class="pl-s1">s_r</span> <span class="pl-c1">-</span> <span class="pl-s1">s_y</span> <span class="pl-c1">*</span> <span class="pl-s1">c_r</span>
+    <span class="pl-s1">matrix</span>[<span class="pl-c1">0</span>, <span class="pl-c1">2</span>] <span class="pl-c1">=</span> <span class="pl-c1">-</span><span class="pl-s1">c_y</span> <span class="pl-c1">*</span> <span class="pl-s1">s_p</span> <span class="pl-c1">*</span> <span class="pl-s1">c_r</span> <span class="pl-c1">-</span> <span class="pl-s1">s_y</span> <span class="pl-c1">*</span> <span class="pl-s1">s_r</span>
+    <span class="pl-s1">matrix</span>[<span class="pl-c1">1</span>, <span class="pl-c1">0</span>] <span class="pl-c1">=</span> <span class="pl-s1">s_y</span> <span class="pl-c1">*</span> <span class="pl-s1">c_p</span>
+    <span class="pl-s1">matrix</span>[<span class="pl-c1">1</span>, <span class="pl-c1">1</span>] <span class="pl-c1">=</span> <span class="pl-s1">s_y</span> <span class="pl-c1">*</span> <span class="pl-s1">s_p</span> <span class="pl-c1">*</span> <span class="pl-s1">s_r</span> <span class="pl-c1">+</span> <span class="pl-s1">c_y</span> <span class="pl-c1">*</span> <span class="pl-s1">c_r</span>
+    <span class="pl-s1">matrix</span>[<span class="pl-c1">1</span>, <span class="pl-c1">2</span>] <span class="pl-c1">=</span> <span class="pl-c1">-</span><span class="pl-s1">s_y</span> <span class="pl-c1">*</span> <span class="pl-s1">s_p</span> <span class="pl-c1">*</span> <span class="pl-s1">c_r</span> <span class="pl-c1">+</span> <span class="pl-s1">c_y</span> <span class="pl-c1">*</span> <span class="pl-s1">s_r</span>
+    <span class="pl-s1">matrix</span>[<span class="pl-c1">2</span>, <span class="pl-c1">0</span>] <span class="pl-c1">=</span> <span class="pl-s1">s_p</span>
+    <span class="pl-s1">matrix</span>[<span class="pl-c1">2</span>, <span class="pl-c1">1</span>] <span class="pl-c1">=</span> <span class="pl-c1">-</span><span class="pl-s1">c_p</span> <span class="pl-c1">*</span> <span class="pl-s1">s_r</span>
+    <span class="pl-s1">matrix</span>[<span class="pl-c1">2</span>, <span class="pl-c1">2</span>] <span class="pl-c1">=</span> <span class="pl-s1">c_p</span> <span class="pl-c1">*</span> <span class="pl-s1">c_r</span>
+    <span class="pl-k">return</span> <span class="pl-s1">matrix</span>
+
+<span class="pl-v">R_left</span> <span class="pl-c1">=</span> <span class="pl-en">euler_matrix_left</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">50</span>), <span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">-</span><span class="pl-c1">16</span>) , <span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">-</span><span class="pl-c1">78</span>))
+<span class="pl-v">T_left</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">-</span><span class="pl-c1">5.7</span>, <span class="pl-c1">-</span><span class="pl-c1">8.9</span>, <span class="pl-c1">-</span><span class="pl-c1">10</span>]])
+
+<span class="pl-v">S_y</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">1</span>, <span class="pl-c1">0</span>, <span class="pl-c1">0</span>], [<span class="pl-c1">0</span>, <span class="pl-c1">-</span><span class="pl-c1">1</span>, <span class="pl-c1">0</span>], [<span class="pl-c1">0</span>, <span class="pl-c1">0</span>, <span class="pl-c1">1</span>]])
+<span class="pl-v">R_right</span> <span class="pl-c1">=</span> <span class="pl-v">S_y</span> @ <span class="pl-v">R_left</span> @ <span class="pl-v">S_y</span> <span class="pl-c">#见公式1</span>
+<span class="pl-v">T_right</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">-</span><span class="pl-c1">5.7</span>, <span class="pl-c1">8.9</span>, <span class="pl-c1">-</span><span class="pl-c1">10</span>]])
+
+<span class="pl-s1">p_left</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">-</span><span class="pl-c1">19</span>, <span class="pl-c1">-</span><span class="pl-c1">20</span>, <span class="pl-c1">89</span>]])
+<span class="pl-s1">p_right</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">-</span><span class="pl-c1">19</span>, <span class="pl-c1">20</span>, <span class="pl-c1">89</span>]])
+
+<span class="pl-s1">p_left_new</span> <span class="pl-c1">=</span> <span class="pl-v">R_left</span> @ <span class="pl-s1">p_left</span>.<span class="pl-c1">T</span> <span class="pl-c1">+</span> <span class="pl-v">T_left</span>.<span class="pl-c1">T</span>
+<span class="pl-s1">p_right_new</span> <span class="pl-c1">=</span> <span class="pl-v">R_right</span> @ <span class="pl-s1">p_right</span>.<span class="pl-c1">T</span> <span class="pl-c1">+</span> <span class="pl-v">T_right</span>.<span class="pl-c1">T</span>
+
+<span class="pl-en">print</span>(<span class="pl-s1">p_left_new</span>.<span class="pl-c1">T</span>)
+<span class="pl-en">print</span>(<span class="pl-s1">p_right_new</span>.<span class="pl-c1">T</span>)
+<span class="pl-c"># 变换后在O1中为[[48.77249475  0.91216204 64.95644597]]，变换后在M1中为[[48.77249475 -0.91216204 64.95644597]]</span>
+<span class="pl-c"># 实际是同一物体</span></pre></div>
+<h5>通过欧拉角推导</h5>
+<p>假设物体在坐标系o1绕X,Y,Z轴旋转了roll，pitch，yaw度，于o1变换到了o2， 则：</p>
+<ul>
+<li>物体在o1中绕x轴旋转了roll，相当于物体在M1中绕x轴旋转了-roll</li>
+<li>物体在o1中绕y轴旋转了pitch，相当于物体在M1中绕y轴旋转了pitch</li>
+<li>物体在o1中绕z轴旋转了yaw，相当于物体在M1中绕z轴旋转了-yaw</li>
+</ul>
+<p>已知物体在坐标系o1平移$[dx, dy, dz]$，则相当于在M1中平移了$[dx, -dy, dz]$</p>
+<p>综上， M1变换到M2的旋转矩阵是$ R_z(-yaw) *R_y(pitch)*Rx(-roll)$。M1变换到M2的平移向量为T= [dx, -dy, dz]。</p>
+<p>待验证</p>
+<h4>carla/UE4左手相机坐标系到标准相机坐标系验证</h4>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-c"># 向量绕固定轴旋转</span>
+<span class="pl-v">R1</span> <span class="pl-c1">=</span> <span class="pl-en">euler_matrix</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">90</span>), <span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">-</span><span class="pl-c1">90</span>), <span class="pl-c1">0</span>, <span class="pl-s">'sxyz'</span>)
+<span class="pl-c"># 坐标轴绕固定轴旋转 </span>
+<span class="pl-v">R2</span> <span class="pl-c1">=</span> <span class="pl-en">euler_matrix</span>(<span class="pl-c1">0</span>, <span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">90</span>), <span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">-</span><span class="pl-c1">90</span>), <span class="pl-s">'szyx'</span>)
+<span class="pl-v">R2</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">linalg</span>.<span class="pl-c1">inv</span>(<span class="pl-v">R2</span>)
+<span class="pl-s1">point</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>,<span class="pl-c1">1</span>]])
+<span class="pl-s1">point_t</span> <span class="pl-c1">=</span> <span class="pl-v">R1</span> @ <span class="pl-s1">point</span>.<span class="pl-c1">T</span>
+
+<span class="pl-en">print</span>(<span class="pl-s1">point_t</span>) <span class="pl-c"># z -&gt; -y</span>
+<span class="pl-en">print</span>(<span class="pl-v">R1</span>)<span class="pl-c"># R1 R2相等</span>
+<span class="pl-en">print</span>(<span class="pl-v">R2</span>)
+
+<span class="pl-s">"""</span>
+<span class="pl-s">[[-6.12323400e-17]</span>
+<span class="pl-s"> [-1.00000000e+00]</span>
+<span class="pl-s"> [ 3.74939946e-33]</span>
+<span class="pl-s"> [ 1.00000000e+00]]</span>
+<span class="pl-s">[[ 6.12323400e-17 -1.00000000e+00 -6.12323400e-17  0.00000000e+00]</span>
+<span class="pl-s"> [ 0.00000000e+00  6.12323400e-17 -1.00000000e+00  0.00000000e+00]</span>
+<span class="pl-s"> [ 1.00000000e+00  6.12323400e-17  3.74939946e-33  0.00000000e+00]</span>
+<span class="pl-s"> [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  1.00000000e+00]]</span>
+<span class="pl-s">[[ 6.12323400e-17 -1.00000000e+00 -6.12323400e-17 -0.00000000e+00]</span>
+<span class="pl-s"> [-0.00000000e+00  6.12323400e-17 -1.00000000e+00 -0.00000000e+00]</span>
+<span class="pl-s"> [ 1.00000000e+00  6.12323400e-17  3.74939946e-33  0.00000000e+00]</span>
+<span class="pl-s"> [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  1.00000000e+00]]</span>
+<span class="pl-s"> """</span></pre></div>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-c1">S</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">1</span>, <span class="pl-c1">0</span> ,<span class="pl-c1">0</span>, <span class="pl-c1">0</span>], [<span class="pl-c1">0</span>, <span class="pl-c1">-</span><span class="pl-c1">1</span>, <span class="pl-c1">0</span>, <span class="pl-c1">0</span>], [<span class="pl-c1">0</span>, <span class="pl-c1">0</span>, <span class="pl-c1">1</span>, <span class="pl-c1">0</span>], [<span class="pl-c1">0</span>, <span class="pl-c1">0</span>, <span class="pl-c1">0</span>, <span class="pl-c1">1</span>]])
+<span class="pl-c"># 向量绕固定轴旋转</span>
+<span class="pl-c1">R</span> <span class="pl-c1">=</span> <span class="pl-en">euler_matrix</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">90</span>), <span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">-</span><span class="pl-c1">90</span>), <span class="pl-c1">0</span>, <span class="pl-s">'sxyz'</span>)
+<span class="pl-c1">T</span> <span class="pl-c1">=</span> <span class="pl-c1">R</span> @ <span class="pl-c1">S</span>
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">1</span>,<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>]])
+<span class="pl-s1">y</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">0</span>,<span class="pl-c1">1</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>]])
+<span class="pl-s1">z</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>,<span class="pl-c1">1</span>]])                       
+<span class="pl-s1">z_new</span> <span class="pl-c1">=</span> <span class="pl-c1">T</span> @ <span class="pl-s1">x</span>.<span class="pl-c1">T</span>
+<span class="pl-s1">x_new</span> <span class="pl-c1">=</span> <span class="pl-c1">T</span> @ <span class="pl-s1">y</span>.<span class="pl-c1">T</span>            
+<span class="pl-s1">neg_y_new</span> <span class="pl-c1">=</span> <span class="pl-c1">T</span> @ <span class="pl-s1">z</span>.<span class="pl-c1">T</span>
+<span class="pl-en">print</span>(<span class="pl-s1">x_new</span>.<span class="pl-c1">T</span>, <span class="pl-s1">neg_y_new</span>.<span class="pl-c1">T</span>, <span class="pl-s1">z_new</span>.<span class="pl-c1">T</span>) <span class="pl-c"># x-&gt;z; y-&gt;x, z-&gt;neg_y</span>
+<span class="pl-s">"""</span>
+<span class="pl-s">[[ 1.000000e+00 -6.123234e-17 -6.123234e-17  1.000000e+00]] [[-6.12323400e-17 -1.00000000e+00  3.74939946e-33  1.00000000e+00]] [[6.123234e-17 0.000000e+00 1.000000e+00 1.000000e+00]]</span>
+<span class="pl-s">"""</span></pre></div>
+<h4>blender右手坐标系到标准相机坐标系验证</h4>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-c1">R</span> <span class="pl-c1">=</span> <span class="pl-en">euler_matrix</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">180</span>), <span class="pl-c1">0</span> , <span class="pl-c1">0</span>, <span class="pl-s">'sxyz'</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">1</span>,<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>]])
+<span class="pl-s1">y</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">0</span>,<span class="pl-c1">1</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>]])
+<span class="pl-s1">z</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>,<span class="pl-c1">1</span>]])
+<span class="pl-s1">x_new</span> <span class="pl-c1">=</span> <span class="pl-c1">R</span> @ <span class="pl-s1">x</span>.<span class="pl-c1">T</span>
+<span class="pl-s1">neg_y_new</span> <span class="pl-c1">=</span> <span class="pl-c1">R</span> @ <span class="pl-s1">y</span>.<span class="pl-c1">T</span>            
+<span class="pl-s1">neg_z_new</span> <span class="pl-c1">=</span> <span class="pl-c1">R</span> @ <span class="pl-s1">z</span>.<span class="pl-c1">T</span>
+<span class="pl-en">print</span>(<span class="pl-s1">x_new</span>.<span class="pl-c1">T</span>, <span class="pl-s1">neg_y_new</span>.<span class="pl-c1">T</span>, <span class="pl-s1">neg_z_new</span>.<span class="pl-c1">T</span>) <span class="pl-c"># x-&gt;x; y-&gt;-y, z-&gt;-z</span>
+<span class="pl-s">"""</span>
+<span class="pl-s">[[1. 0. 0. 1.]] [[ 0.0000000e+00 -1.0000000e+00  1.2246468e-16  1.0000000e+00]] [[ 0.0000000e+00 -1.2246468e-16 -1.0000000e+00  1.0000000e+00]]</span>
+<span class="pl-s">"""</span></pre></div>
+<h4>cityscapes 右手相机坐标系到标准相机坐标系验证</h4>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-c"># 向量绕固定轴旋转</span>
+<span class="pl-c1">R</span> <span class="pl-c1">=</span> <span class="pl-en">euler_matrix</span>(<span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">90</span>), <span class="pl-s1">np</span>.<span class="pl-c1">radians</span>(<span class="pl-c1">-</span><span class="pl-c1">90</span>), <span class="pl-c1">0</span>, <span class="pl-s">'sxyz'</span>)
+<span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">1</span>,<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>]])
+<span class="pl-s1">y</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">0</span>,<span class="pl-c1">1</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>]])
+<span class="pl-s1">z</span> <span class="pl-c1">=</span> <span class="pl-s1">np</span>.<span class="pl-c1">array</span>([[<span class="pl-c1">0</span>,<span class="pl-c1">0</span>,<span class="pl-c1">1</span>,<span class="pl-c1">1</span>]])                       
+<span class="pl-s1">z_new</span> <span class="pl-c1">=</span> <span class="pl-c1">R</span> @ <span class="pl-s1">x</span>.<span class="pl-c1">T</span>
+<span class="pl-s1">neg_x_new</span> <span class="pl-c1">=</span> <span class="pl-c1">R</span> @ <span class="pl-s1">y</span>.<span class="pl-c1">T</span>            
+<span class="pl-s1">neg_y_new</span> <span class="pl-c1">=</span> <span class="pl-c1">R</span> @ <span class="pl-s1">z</span>.<span class="pl-c1">T</span>
+<span class="pl-en">print</span>(<span class="pl-s1">neg_x_new</span>.<span class="pl-c1">T</span>, <span class="pl-s1">neg_y_new</span>.<span class="pl-c1">T</span>, <span class="pl-s1">z_new</span>.<span class="pl-c1">T</span>) <span class="pl-c"># x-&gt;z; y-&gt;neg_x, z-&gt;neg_y</span>
+<span class="pl-s">"""</span>
+<span class="pl-s">eg_x_new.T, neg_y_new.T, z_new.T) # x-&gt;z; y-&gt;neg_x, z-&gt;neg_y</span>
+<span class="pl-s">8</span>
+<span class="pl-s">[[-1.000000e+00  6.123234e-17  6.123234e-17  1.000000e+00]] [[-6.12323400e-17 -1.00000000e+00  3.74939946e-33  1.00000000e+00]] [[6.123234e-17 0.000000e+00 1.000000e+00 1.000000e+00]]</span>
+<span class="pl-s">"""</span></pre></div>
+<pre class="notranslate"><code class="notranslate">def euler_matrix_left(roll, pitch, yaw ):
+    c_y = np.cos(yaw)
+    s_y = np.sin(yaw)
+    c_r = np.cos(roll)
+    s_r = np.sin(roll)
+    c_p = np.cos(pitch)
+    s_p = np.sin(pitch)
+    matrix = np.matrix(np.identity(3))
+    matrix[0, 0] = c_p * c_y
+    matrix[0, 1] = c_y * s_p * s_r - s_y * c_r
+    matrix[0, 2] = -c_y * s_p * c_r - s_y * s_r
+    matrix[1, 0] = s_y * c_p
+    matrix[1, 1] = s_y * s_p * s_r + c_y * c_r
+    matrix[1, 2] = -s_y * s_p * c_r + c_y * s_r
+    matrix[2, 0] = s_p
+    matrix[2, 1] = -c_p * s_r
+    matrix[2, 2] = c_p * c_r
+    return matrix
+    
+R_left = euler_matrix_left(np.radians(50), np.radians(-16) , np.radians(-78))
+T_left = np.array([[-5.7, -8.9, -10]])
+
+</code></pre></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://mickeyding.github.io">NiaDing's Technical Blog </a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","mickeyding/mickeyding.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+<script async type='text/javascript' src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'></script><script>MathJax = {tex: {inlineMath: [["$", "$"]]}};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</html>
