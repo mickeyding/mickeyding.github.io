@@ -187,24 +187,24 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <ul>
 <li>
 <p>R旋转矩阵的定义是对坐标变换的定义，正向按上述方向确定，以下是右手坐标系R的定义</p>
-<p>$$R_x(\theta) = \left[ \begin{matrix} 1 &amp; 0 &amp; 0 \ 0 &amp; cos \theta &amp; -sin \theta \ 0 &amp; sin \theta &amp; cos \theta  \end{matrix} \right]$$<br>
-$$R_y(\theta) = \left[ \begin{matrix} cos \theta &amp; 0 &amp; sin \theta \ 0 &amp; 1 &amp; 0 \ -sin \theta &amp; 0 &amp; cos \theta  \end{matrix} \right]$$<br>
-$$R_z(\theta) = \left[ \begin{matrix} cos \theta &amp; -sin \theta &amp; 0 \ sin \theta &amp; cos \theta &amp; 0 \ 0 &amp; 0 &amp; 1  \end{matrix} \right]$$</p>
+<p>$$R_x(\theta) = \left[ \begin{matrix} 1 &amp; 0 &amp; 0 \newline 0 &amp; cos \theta &amp; -sin \theta \newline 0 &amp; sin \theta &amp; cos \theta  \end{matrix} \right]$$<br>
+$$R_y(\theta) = \left[ \begin{matrix} cos \theta &amp; 0 &amp; sin \theta \newline 0 &amp; 1 &amp; 0 \newline-sin \theta &amp; 0 &amp; cos \theta  \end{matrix} \right]$$<br>
+$$R_z(\theta) = \left[ \begin{matrix} cos \theta &amp; -sin \theta &amp; 0 \newline sin \theta &amp; cos \theta &amp; 0 \newline 0 &amp; 0 &amp; 1  \end{matrix} \right]$$</p>
 </li>
 <li>
 <p>以下是左手坐标系定义</p>
-<p>$$R_x(\theta) = \left[ \begin{matrix} 1 &amp; 0 &amp; 0 \ 0 &amp; cos \theta &amp; sin \theta \ 0 &amp; -sin \theta &amp; cos \theta  \end{matrix} \right]$$</p>
+<p>$$R_x(\theta) = \left[ \begin{matrix} 1 &amp; 0 &amp; 0 \newline 0 &amp; cos \theta &amp; sin \theta \newline 0 &amp; -sin \theta &amp; cos \theta  \end{matrix} \right]$$</p>
 </li>
 </ul>
-<p>$$R_y(\theta) = \left[ \begin{matrix} cos \theta &amp; 0 &amp; -sin \theta \ 0 &amp; 1 &amp; 0 \\
+<p>$$R_y(\theta) = \left[ \begin{matrix} cos \theta &amp; 0 &amp; -sin \theta \newline 0 &amp; 1 &amp; 0 \newline
 sin \theta &amp; 0 &amp; cos \theta  \end{matrix} \right]$$</p>
-<p>​ $$R_z (\theta) = \left[ \begin{matrix} cos \theta &amp; sin \theta &amp; 0 \ -sin \theta &amp; cos \theta &amp; 0 \<br>
+<p>​ $$R_z (\theta) = \left[ \begin{matrix} cos \theta &amp; sin \theta &amp; 0 \newline -sin \theta &amp; cos \theta &amp; 0 \newline<br>
 0 &amp; 0 &amp; 1  \end{matrix} \right]$$</p>
 <ul>
 <li>
 <p>以下是绕任意轴n旋转</p>
-<p>$$R( \hat n ,\theta) = \left[ \begin{matrix} n_x^2(1 - cos \theta) + cos \theta &amp; n_x n_y(1 - cos \theta) + n_z sin \theta &amp; n_x n_z (1 - cos \theta) - n_y sin \theta \<br>
-n_x n_y (1 - cos \theta) - n_z sin \theta &amp; n_y ^ 2 ( 1- cos \theta) +cos \theta &amp; n_y n_z (1 - cos \theta) + n_x sin \theta \<br>
+<p>$$R( \hat n ,\theta) = \left[ \begin{matrix} n_x^2(1 - cos \theta) + cos \theta &amp; n_x n_y(1 - cos \theta) + n_z sin \theta &amp; n_x n_z (1 - cos \theta) - n_y sin \theta \newline<br>
+n_x n_y (1 - cos \theta) - n_z sin \theta &amp; n_y ^ 2 ( 1- cos \theta) +cos \theta &amp; n_y n_z (1 - cos \theta) + n_x sin \theta \newline<br>
 n_x n_z（1 - cos \ theta) + n_y sin \theta &amp; n_y n_z (1 - cos\theta) - n_x sin \theta &amp; n_x^2(1-cos \theta) + cos \theta<br>
 \end{matrix} \right]$$</p>
 </li>
