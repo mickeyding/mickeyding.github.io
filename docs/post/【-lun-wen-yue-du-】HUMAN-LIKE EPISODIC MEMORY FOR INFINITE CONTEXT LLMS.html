@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="# 目标
+该文章的目的是引入EM-LLM框架，通过模拟人类的情景记忆机制，解决大语言模型（LLMs）在处理长上下文时的局限性​；EM-LLM的设计灵感源于人类大脑的事件认知与回忆过程，目标是使LLMs能够有效地处理无限长度的上下文，提高检索和推理性能，同时保持计算效率​；
+
+# 方法
+
+EM-LLM 的实现方法包括 **事件分段** 和 **记忆检索** 两个核心阶段，同时引入了基于**贝叶斯突发**的初始边界识别与**图论边界细化**方法，详细步骤如下：
+
+![image](https://github.com/user-attachments/assets/7c146151-c2ab-4e83-adbe-e2ef543c8656)
+
+---
+
+## **1. 事件分段（Memory Formation）**
+
+### **步骤 1：基于“贝叶斯突发”的初始事件边界识别**
+- **目的**：通过**惊讶值（Surprise）** 识别事件边界。">
+<meta property="og:title" content="【论文阅读】HUMAN-LIKE EPISODIC MEMORY FOR INFINITE CONTEXT LLMS">
+<meta property="og:description" content="# 目标
+该文章的目的是引入EM-LLM框架，通过模拟人类的情景记忆机制，解决大语言模型（LLMs）在处理长上下文时的局限性​；EM-LLM的设计灵感源于人类大脑的事件认知与回忆过程，目标是使LLMs能够有效地处理无限长度的上下文，提高检索和推理性能，同时保持计算效率​；
+
+# 方法
+
+EM-LLM 的实现方法包括 **事件分段** 和 **记忆检索** 两个核心阶段，同时引入了基于**贝叶斯突发**的初始边界识别与**图论边界细化**方法，详细步骤如下：
+
+![image](https://github.com/user-attachments/assets/7c146151-c2ab-4e83-adbe-e2ef543c8656)
+
+---
+
+## **1. 事件分段（Memory Formation）**
+
+### **步骤 1：基于“贝叶斯突发”的初始事件边界识别**
+- **目的**：通过**惊讶值（Surprise）** 识别事件边界。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://mickeyding.github.io/post/%E3%80%90-lun-wen-yue-du-%E3%80%91HUMAN-LIKE%20EPISODIC%20MEMORY%20FOR%20INFINITE%20CONTEXT%20LLMS.html">
+<meta property="og:image" content="https://github.githubassets.com/favicons/favicon.svg">
+<title>【论文阅读】HUMAN-LIKE EPISODIC MEMORY FOR INFINITE CONTEXT LLMS</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">【论文阅读】HUMAN-LIKE EPISODIC MEMORY FOR INFINITE CONTEXT LLMS</h1>
+<div class="title-right">
+    <a href="https://mickeyding.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/mickeyding/mickeyding.github.io/issues/12" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h1>目标</h1>
+<p>该文章的目的是引入EM-LLM框架，通过模拟人类的情景记忆机制，解决大语言模型（LLMs）在处理长上下文时的局限性​；EM-LLM的设计灵感源于人类大脑的事件认知与回忆过程，目标是使LLMs能够有效地处理无限长度的上下文，提高检索和推理性能，同时保持计算效率​；</p>
+<h1>方法</h1>
+<p>EM-LLM 的实现方法包括 <strong>事件分段</strong> 和 <strong>记忆检索</strong> 两个核心阶段，同时引入了基于<strong>贝叶斯突发</strong>的初始边界识别与<strong>图论边界细化</strong>方法，详细步骤如下：</p>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/7c146151-c2ab-4e83-adbe-e2ef543c8656"><img src="https://github.com/user-attachments/assets/7c146151-c2ab-4e83-adbe-e2ef543c8656" alt="image" style="max-width: 100%;"></a></p>
+<hr>
+<h2><strong>1. 事件分段（Memory Formation）</strong></h2>
+<h3><strong>步骤 1：基于“贝叶斯突发”的初始事件边界识别</strong></h3>
+<ul>
+<li>
+<strong>目的</strong>：通过<strong>惊讶值（Surprise）</strong> 识别事件边界。</li>
+<li>
+<strong>实现原理</strong>：
+<ul>
+<li>惊讶值是一个概率值，表示当前 token 的不确定性（负对数似然）。当预测 token 的概率低时，惊讶值高，表明事件边界的可能性大。</li>
+</ul>
+</li>
+<li>
+<strong>公式</strong>：<br>
+$$
+<ul>
+<li>\log P(x_t \mid x_1, ..., x_{t-1}; \theta) &gt; T<br>
+$$<br>
+其中：</li>
+<li>$ x_t $ 是当前 token，</li>
+<li>$ P(x_t \mid x_1, ..., x_{t-1}; \theta) $表示模型预测当前 token 的概率，</li>
+<li>T 是动态阈值，由当前窗口的惊讶值的均值和方差决定，公式为：<br>
+$$<br>
+T = \mu_{t-\tau:t} + \gamma \sigma_{t-\tau:t}<br>
+$$</li>
+<li>$ \mu $：最近窗口的惊讶值均值，$ \sigma $：标准差，$ \gamma $ 是缩放因子。</li>
+</ul>
+</li>
+</ul>
+<p><strong>具体步骤</strong>：</p>
+<ol>
+<li>在 token 序列中计算每个 token 的惊讶值。</li>
+<li>将惊讶值高于阈值 T 的 token 作为初始事件边界。</li>
+<li>输出初始事件边界集合 $ B = {b_1, b_2, ..., b_k} $。</li>
+</ol>
+<hr>
+<h3><strong>步骤 2：基于图论的边界细化</strong></h3>
+<ul>
+<li><strong>目的</strong>：优化事件边界，使得每个事件内部的 token 相似度高、事件之间相似度低。</li>
+<li><strong>方法</strong>：
+<ul>
+<li>将 Transformer 注意力头中的 <strong>key 值</strong> 的相似性矩阵视为<strong>加权图的邻接矩阵</strong>。</li>
+<li>通过图论中的<strong>模块度（Modularity）</strong> 和 <strong>导通度（Conductance）</strong> 进行边界细化。</li>
+</ul>
+</li>
+</ul>
+<p><strong>关键公式</strong>：</p>
+<ol>
+<li>
+<p><strong>相似度矩阵</strong>：<br>
+$$<br>
+A_{ij} = \text{sim}(K_i, K_j)<br>
+$$<br>
+其中 $ K_i $ 和 $ K_j $ 是 attention head 的 key 值，相似度采用点积计算。</p>
+</li>
+<li>
+<p><strong>模块度</strong>（衡量事件内部密度）：<br>
+$$<br>
+f_M(A, B) = \frac{1}{4m} \sum_{i,j} \left[ A_{ij} - \frac{\sum_i A_{ij} \cdot \sum_j A_{ij}}{2m} \right] \delta(c_i, c_j)<br>
+$$<br>
+其中 $ \delta $ 是 Kronecker delta，表示两个节点是否属于同一个事件。</p>
+</li>
+<li>
+<p><strong>导通度</strong>（衡量事件之间的分割质量）：<br>
+$$<br>
+f_C(A, B) = \min_{S \in V} \frac{\sum_{i \in S, j \notin S} A_{ij}}{\min(\text{vol}(S), \text{vol}(V \setminus S))}<br>
+$$</p>
+</li>
+</ol>
+<p><strong>具体步骤</strong>：</p>
+<ol>
+<li>将初始边界 B 输入，基于  A 计算事件内部的密度和跨边界的相似性。</li>
+<li>对每个初始边界，在事件边界 $ [\alpha, \beta] $ 区间内寻找最佳边界点 $ \hat{\beta} $，优化模块度或导通度。</li>
+<li>输出优化后的边界集合 B' 。</li>
+</ol>
+<hr>
+<h2><strong>2. 记忆检索（Memory Retrieval）</strong></h2>
+<h3><strong>步骤 3：两阶段记忆检索</strong></h3>
+<ul>
+<li><strong>目的</strong>：从大量的事件记忆中检索与当前任务相关的信息，并动态添加到 LLM 上下文窗口中。</li>
+</ul>
+<h4><strong>阶段 1：基于相似性的事件检索</strong></h4>
+<ol>
+<li>
+<strong>相似性计算</strong>：对于当前 query，使用<strong>k-近邻（k-NN）</strong> 方法检索最相似的事件。
+<ul>
+<li>相似性基于事件代表 token（例如注意力分数最高的 token）与 query 的点积相似度。</li>
+</ul>
+</li>
+<li>
+<strong>事件选择</strong>：检索出最相关的 $ k_s $ 个事件，作为<strong>相似性缓冲区</strong>。</li>
+</ol>
+<h4><strong>阶段 2：基于时间连续性的检索</strong></h4>
+<ol>
+<li>对于相似性检索出的事件，额外检索其<strong>相邻事件</strong>（在原始顺序中靠近的事件）。</li>
+<li>将这些相邻事件添加到<strong>连续性缓冲区</strong>。</li>
+<li>使用队列结构维持事件顺序，保证时间连续性。</li>
+</ol>
+<p><strong>最终上下文窗口组成</strong>：</p>
+<ul>
+<li><strong>初始 token</strong>：任务开头的部分 token。</li>
+<li><strong>局部上下文</strong>：当前窗口的最近 token。</li>
+<li><strong>相似性缓冲区</strong>：检索到的最相关事件。</li>
+<li><strong>连续性缓冲区</strong>：相邻事件，增强时间连续性。</li>
+</ul>
+<hr>
+<h2><strong>整体实现流程总结</strong></h2>
+<ol>
+<li><strong>输入</strong>：长上下文的 token 序列。</li>
+<li><strong>事件分段</strong>：
+<ul>
+<li>使用惊讶值识别初始边界。</li>
+<li>利用图论方法优化事件边界，生成事件集合。</li>
+</ul>
+</li>
+<li><strong>记忆检索</strong>：
+<ul>
+<li>基于相似性进行 k-NN 检索获取相关事件。</li>
+<li>添加相邻事件维护时间连续性。</li>
+</ul>
+</li>
+<li><strong>输出</strong>：构建优化后的上下文窗口（初始 token + 相似性事件 + 连续性事件 + 局部上下文），供 LLM 进行推理。</li>
+</ol>
+<hr>
+<h2><strong>算法复杂度</strong></h2>
+<ul>
+<li><strong>惊讶值计算</strong>：线性复杂度 O(n) ，其中 n 是 token 数量。</li>
+<li><strong>边界细化</strong>： O(kn) ，其中 k 是事件边界数。</li>
+<li><strong>记忆检索</strong>:   O(k_s + k_c)，检索相关和相邻事件。</li>
+</ul>
+<p>此流程实现了人类记忆机制的模拟，使 LLM 能够在 <strong>无限上下文</strong> 中高效地进行检索和推理。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://mickeyding.github.io">NiaDing's Technical Blog </a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","mickeyding/mickeyding.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+<script async type='text/javascript' src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'></script><script>MathJax = {tex: {inlineMath: [["$", "$"]]}};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</html>
