@@ -1,4 +1,3 @@
-
 ![image](https://github.com/user-attachments/assets/70e682fe-6d38-4178-b8d1-8617428b046c)
 
 # 目标
@@ -34,9 +33,11 @@
 
 - **关键步骤**：
    - 整合公式：  
+   
      $$
      H̄ = \text{Compressor}([H_1 \circ H_2 \circ ... \circ H_k \circ \hat{H}_1 \circ \hat{H}_2 \circ ... \circ \hat{H}_k])
      $$
+
    - 输出的长期记忆 $ H̄ $ 保留宏观上下文信息，同时压缩了冗余数据。  
 
 - **训练数据**：使用长视频数据，如 **Ego4D** 和 **ActivityNet**，并构建**时间序列任务**来训练模型进行整合。
