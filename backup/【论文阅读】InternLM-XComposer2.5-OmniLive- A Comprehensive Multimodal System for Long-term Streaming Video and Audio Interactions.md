@@ -3,10 +3,14 @@
 # 目标
 
 该文章提出了 InternLM-XComposer2.5-OmniLive (IXC2.5-OL)，一个具备长时间多模态（音频和视频）实时交互能力的AI系统
+![image](https://github.com/user-attachments/assets/cd4fc1cc-6091-4b80-b4de-1287825aa2af)
 
 # 方法
 ## **记忆模块利用机制**
 为了利用多模态长记忆模块并解决大规模数据的问题，训练过程中引入了**三大核心任务**，针对视频和音频数据的记忆管理：
+
+![image](https://github.com/user-attachments/assets/91e9c192-70f9-44e5-9534-41f9940f6989)
+
 
 
 ### **1. 视频片段压缩任务**

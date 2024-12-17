@@ -1,13 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>NiaDing's Technical Blog </title><link>https://mickeyding.github.io</link><description>I have research and development experience in autonomous driving simulation, and have explored related technologies such as NeRF, 3DGS and diffusion. Here, I will be sharing my insights and knowledge with everyone.</description><copyright>NiaDing's Technical Blog </copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://github.githubassets.com/favicons/favicon.svg</url><title>avatar</title><link>https://mickeyding.github.io</link></image><lastBuildDate>Tue, 17 Dec 2024 09:39:42 +0000</lastBuildDate><managingEditor>NiaDing's Technical Blog </managingEditor><ttl>60</ttl><webMaster>NiaDing's Technical Blog </webMaster><item><title>【论文阅读】InternLM-XComposer2.5-OmniLive: A Comprehensive Multimodal System for Long-term Streaming Video and Audio Interactions</title><link>https://mickeyding.github.io/post/%E3%80%90-lun-wen-yue-du-%E3%80%91InternLM-XComposer2.5-OmniLive-%20A%20Comprehensive%20Multimodal%20System%20for%20Long-term%20Streaming%20Video%20and%20Audio%20Interactions.html</link><description>![image](https://github.com/user-attachments/assets/70e682fe-6d38-4178-b8d1-8617428b046c)&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>NiaDing's Technical Blog </title><link>https://mickeyding.github.io</link><description>I have research and development experience in autonomous driving simulation, and have explored related technologies such as NeRF, 3DGS and diffusion. Here, I will be sharing my insights and knowledge with everyone.</description><copyright>NiaDing's Technical Blog </copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://github.githubassets.com/favicons/favicon.svg</url><title>avatar</title><link>https://mickeyding.github.io</link></image><lastBuildDate>Tue, 17 Dec 2024 09:44:53 +0000</lastBuildDate><managingEditor>NiaDing's Technical Blog </managingEditor><ttl>60</ttl><webMaster>NiaDing's Technical Blog </webMaster><item><title>【论文阅读】InternLM-XComposer2.5-OmniLive: A Comprehensive Multimodal System for Long-term Streaming Video and Audio Interactions</title><link>https://mickeyding.github.io/post/%E3%80%90-lun-wen-yue-du-%E3%80%91InternLM-XComposer2.5-OmniLive-%20A%20Comprehensive%20Multimodal%20System%20for%20Long-term%20Streaming%20Video%20and%20Audio%20Interactions.html</link><description>![image](https://github.com/user-attachments/assets/70e682fe-6d38-4178-b8d1-8617428b046c)&#13;
 &#13;
 # 目标&#13;
 &#13;
 该文章提出了 InternLM-XComposer2.5-OmniLive (IXC2.5-OL)，一个具备长时间多模态（音频和视频）实时交互能力的AI系统&#13;
+![image](https://github.com/user-attachments/assets/cd4fc1cc-6091-4b80-b4de-1287825aa2af)&#13;
 &#13;
 # 方法&#13;
 ## **记忆模块利用机制**&#13;
 为了利用多模态长记忆模块并解决大规模数据的问题，训练过程中引入了**三大核心任务**，针对视频和音频数据的记忆管理：&#13;
+&#13;
+![image](https://github.com/user-attachments/assets/91e9c192-70f9-44e5-9534-41f9940f6989)&#13;
+&#13;
 &#13;
 &#13;
 ### **1. 视频片段压缩任务**&#13;
