@@ -10,7 +10,11 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="# 目标
+<meta name="description" content="
+![image](https://github.com/user-attachments/assets/041fe49e-1c94-416b-8099-194793722b15)
+
+
+# 目标
 该文章的目的是引入EM-LLM框架，通过模拟人类的情景记忆机制，解决大语言模型（LLMs）在处理长上下文时的局限性​；EM-LLM的设计灵感源于人类大脑的事件认知与回忆过程，目标是使LLMs能够有效地处理无限长度的上下文，提高检索和推理性能，同时保持计算效率​；
 
 # 方法
@@ -26,7 +30,11 @@ EM-LLM 的实现方法包括 **事件分段** 和 **记忆检索** 两个核心�
 ### **步骤 1：基于“贝叶斯突发”的初始事件边界识别**
 - **目的**：通过**惊讶值（Surprise）** 识别事件边界。">
 <meta property="og:title" content="【论文阅读】HUMAN-LIKE EPISODIC MEMORY FOR INFINITE CONTEXT LLMS">
-<meta property="og:description" content="# 目标
+<meta property="og:description" content="
+![image](https://github.com/user-attachments/assets/041fe49e-1c94-416b-8099-194793722b15)
+
+
+# 目标
 该文章的目的是引入EM-LLM框架，通过模拟人类的情景记忆机制，解决大语言模型（LLMs）在处理长上下文时的局限性​；EM-LLM的设计灵感源于人类大脑的事件认知与回忆过程，目标是使LLMs能够有效地处理无限长度的上下文，提高检索和推理性能，同时保持计算效率​；
 
 # 方法
@@ -101,7 +109,8 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><h1>目标</h1>
+<div class="markdown-body" id="postBody"><p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/041fe49e-1c94-416b-8099-194793722b15"><img src="https://github.com/user-attachments/assets/041fe49e-1c94-416b-8099-194793722b15" alt="image" style="max-width: 100%;"></a></p>
+<h1>目标</h1>
 <p>该文章的目的是引入EM-LLM框架，通过模拟人类的情景记忆机制，解决大语言模型（LLMs）在处理长上下文时的局限性​；EM-LLM的设计灵感源于人类大脑的事件认知与回忆过程，目标是使LLMs能够有效地处理无限长度的上下文，提高检索和推理性能，同时保持计算效率​；</p>
 <h1>方法</h1>
 <p>EM-LLM 的实现方法包括 <strong>事件分段</strong> 和 <strong>记忆检索</strong> 两个核心阶段，同时引入了基于<strong>贝叶斯突发</strong>的初始边界识别与<strong>图论边界细化</strong>方法，详细步骤如下：</p>
@@ -111,20 +120,18 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <h3><strong>步骤 1：基于“贝叶斯突发”的初始事件边界识别</strong></h3>
 <ul>
 <li>
-<strong>目的</strong>：通过<strong>惊讶值（Surprise）</strong> 识别事件边界。</li>
+<p><strong>目的</strong>：通过<strong>惊讶值（Surprise）</strong> 识别事件边界。</p>
+</li>
 <li>
-<strong>实现原理</strong>：
+<p><strong>实现原理</strong>：</p>
 <ul>
 <li>惊讶值是一个概率值，表示当前 token 的不确定性（负对数似然）。当预测 token 的概率低时，惊讶值高，表明事件边界的可能性大。</li>
 </ul>
-</li>
-<li>
-<strong>公式</strong>：<br>
-$$
+<p>$$<br>
+\log P(x_t \mid x_1, ..., x_{t-1}; \theta) &gt; T<br>
+$$</p>
+<p>其中：</p>
 <ul>
-<li>\log P(x_t \mid x_1, ..., x_{t-1}; \theta) &gt; T<br>
-$$<br>
-其中：</li>
 <li>$ x_t $ 是当前 token，</li>
 <li>$ P(x_t \mid x_1, ..., x_{t-1}; \theta) $表示模型预测当前 token 的概率，</li>
 <li>T 是动态阈值，由当前窗口的惊讶值的均值和方差决定，公式为：<br>
@@ -232,9 +239,12 @@ $$</p>
 <hr>
 <h2><strong>算法复杂度</strong></h2>
 <ul>
-<li><strong>惊讶值计算</strong>：线性复杂度 O(n) ，其中 n 是 token 数量。</li>
-<li><strong>边界细化</strong>： O(kn) ，其中 k 是事件边界数。</li>
-<li><strong>记忆检索</strong>:   O(k_s + k_c)，检索相关和相邻事件。</li>
+<li>
+<strong>惊讶值计算</strong>：线性复杂度 O(n) ，其中 n 是 token 数量。</li>
+<li>
+<strong>边界细化</strong>： O(k*n) ，其中 k 是事件边界数。</li>
+<li>
+<strong>记忆检索</strong>:   $O(k_s + k_c)$，检索相关和相邻事件。</li>
 </ul>
 <p>此流程实现了人类记忆机制的模拟，使 LLM 能够在 <strong>无限上下文</strong> 中高效地进行检索和推理。</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
