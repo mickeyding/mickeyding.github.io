@@ -10,8 +10,7 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="
-![image](https://github.com/user-attachments/assets/041fe49e-1c94-416b-8099-194793722b15)
+<meta name="description" content="![image](https://github.com/user-attachments/assets/041fe49e-1c94-416b-8099-194793722b15)
 
 
 # 目标
@@ -30,8 +29,7 @@ EM-LLM 的实现方法包括 **事件分段** 和 **记忆检索** 两个核心�
 ### **步骤 1：基于“贝叶斯突发”的初始事件边界识别**
 - **目的**：通过**惊讶值（Surprise）** 识别事件边界。">
 <meta property="og:title" content="【论文阅读】HUMAN-LIKE EPISODIC MEMORY FOR INFINITE CONTEXT LLMS">
-<meta property="og:description" content="
-![image](https://github.com/user-attachments/assets/041fe49e-1c94-416b-8099-194793722b15)
+<meta property="og:description" content="![image](https://github.com/user-attachments/assets/041fe49e-1c94-416b-8099-194793722b15)
 
 
 # 目标
@@ -246,7 +244,20 @@ $$</p>
 <li>
 <strong>记忆检索</strong>:   $O(k_s + k_c)$，检索相关和相邻事件。</li>
 </ul>
-<p>此流程实现了人类记忆机制的模拟，使 LLM 能够在 <strong>无限上下文</strong> 中高效地进行检索和推理。</p></div>
+<p>此流程实现了人类记忆机制的模拟，使 LLM 能够在 <strong>无限上下文</strong> 中高效地进行检索和推理。</p>
+<h1>下游表现</h1>
+<p>EM-LLM的表现经过了LongBench和<strong>∞-Bench</strong>两大长上下文任务基准测试，结果如下：</p>
+<h2>对比表现：</h2>
+<ul>
+<li>优于InfLLM（现有最先进KV检索模型）和RAG方法，在80%的任务组上取得领先</li>
+<li>在检索（例如KV、Passage、Number）和问答任务（如NarrativeQA、HotpotQA）上表现出高达**40%**的提升​</li>
+</ul>
+<h2>与全上下文模型对比：</h2>
+<ul>
+<li>EM-LLM在大部分任务中表现优于全上下文模型，且能够成功进行10百万个tokens的检索，这对当前全上下文模型来说是不可行的​</li>
+</ul>
+<h2>与人类认知的对比：</h2>
+<p>EM-LLM的事件分段与人类感知的事件高度相关，揭示了其与人类情景记忆之间的联系，提供了一种新的框架来研究人类记忆机制​</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
