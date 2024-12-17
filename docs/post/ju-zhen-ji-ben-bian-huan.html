@@ -202,9 +202,12 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </li>
 <li>
 <p>以下是绕任意轴n旋转</p>
-<p>$R( \hat n ,\theta) = \left[ \begin{matrix} n_x^2(1 - cos \theta) + cos \theta &amp; n_x n_y(1 - cos \theta) + n_z sin \theta &amp; n_x n_z (1 - cos \theta) - n_y sin \theta \ n_x n_y (1 - cos \theta) - n_z sin \theta &amp; n_y ^ 2 ( 1- cos \theta) +cos \theta &amp; n_y n_z (1 - cos \theta) + n_x sin \theta \ n_x n_z（1 - cos \ theta) + n_y sin \theta &amp; n_y n_z (1 - cos\theta) - n_x sin \theta &amp; n_x^2(1-cos \theta) + cos \theta \end{matrix} \right]$</p>
+<p>$R( \hat n ,\theta) = \left[ \begin{matrix} n_x^2(1 - cos \theta) + cos \theta &amp; n_x n_y(1 - cos \theta) + n_z sin \theta &amp; n_x n_z (1 - cos \theta) - n_y sin \theta \</p>
 </li>
 </ul>
+<p>n_x n_y (1 - cos \theta) - n_z sin \theta &amp; n_y ^ 2 ( 1- cos \theta) +cos \theta &amp; n_y n_z (1 - cos \theta) + n_x sin \theta \</p>
+<p>n_x n_z（1 - cos \ theta) + n_y sin \theta &amp; n_y n_z (1 - cos\theta) - n_x sin \theta &amp; n_x^2(1-cos \theta) + cos \theta<br>
+\end{matrix} \right]$</p>
 <h4>左手坐标系变换矩阵 转换到 右手坐标系变换矩阵</h4>
 <p>已知某点在左手坐标系O1中的变换矩阵Q，相当于该点坐标不变，左手坐标系 O1 -&gt; O2应用了变换矩阵Q'。下面对坐标系的变换，本质上还是求该点在原始坐标系中的变换。已知左手坐标系 O1 -&gt; O2的变换，如何求相应的在右手坐标系M1-&gt;M2的变换矩阵？假设同一个物体在O1，O2中的点为$p_{o1} = [x, y, z], p_{o2} = [x', y', z']$, 则要求 $p_{m1} = [x, -y, z], p_{m2} =[x', -y', z']$的变换。</p>
 <p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/994331a8-7280-49e0-87a4-15cf6958699f"><img src="https://github.com/user-attachments/assets/994331a8-7280-49e0-87a4-15cf6958699f" alt="图片3" style="max-width: 100%;"></a></p>
