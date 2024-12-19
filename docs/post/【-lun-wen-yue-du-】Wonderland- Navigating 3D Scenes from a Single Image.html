@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="
+![image](https://github.com/user-attachments/assets/be7fb372-01ec-453f-9289-ebd2b91270af)
+
+# 目标
+
+这篇文章《Wonderland: Navigating 3D Scenes from a Single Image》提出了一种**基于单张图片的高效三维场景重建方法**，结合视频扩散模型和高斯点渲染技术，能够在无需逐场景优化的情况下快速生成高质量、宽范围的三维场景。">
+<meta property="og:title" content="【论文阅读】Wonderland: Navigating 3D Scenes from a Single Image">
+<meta property="og:description" content="
+![image](https://github.com/user-attachments/assets/be7fb372-01ec-453f-9289-ebd2b91270af)
+
+# 目标
+
+这篇文章《Wonderland: Navigating 3D Scenes from a Single Image》提出了一种**基于单张图片的高效三维场景重建方法**，结合视频扩散模型和高斯点渲染技术，能够在无需逐场景优化的情况下快速生成高质量、宽范围的三维场景。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://mickeyding.github.io/post/%E3%80%90-lun-wen-yue-du-%E3%80%91Wonderland-%20Navigating%203D%20Scenes%20from%20a%20Single%20Image.html">
+<meta property="og:image" content="https://github.githubassets.com/favicons/favicon.svg">
+<title>【论文阅读】Wonderland: Navigating 3D Scenes from a Single Image</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">【论文阅读】Wonderland: Navigating 3D Scenes from a Single Image</h1>
+<div class="title-right">
+    <a href="https://mickeyding.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/mickeyding/mickeyding.github.io/issues/15" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/be7fb372-01ec-453f-9289-ebd2b91270af"><img src="https://github.com/user-attachments/assets/be7fb372-01ec-453f-9289-ebd2b91270af" alt="image" style="max-width: 100%;"></a></p>
+<h1>目标</h1>
+<p>这篇文章《Wonderland: Navigating 3D Scenes from a Single Image》提出了一种<strong>基于单张图片的高效三维场景重建方法</strong>，结合视频扩散模型和高斯点渲染技术，能够在无需逐场景优化的情况下快速生成高质量、宽范围的三维场景。</p>
+<h1>方法</h1>
+<h2><strong>基本方法概述</strong></h2>
+<ol>
+<li><strong>输入</strong>：单张图片及其摄像机位姿信息。</li>
+<li><strong>目标</strong>：生成包含高几何一致性和高保真度的三维场景表示，并支持从任意视角生成2D图像。</li>
+<li><strong>核心技术</strong>：
+<ul>
+<li><strong>视频扩散模型（Video Diffusion Model）</strong>：用于从单张图片生成多视角一致的潜空间特征。</li>
+<li><strong>3D高斯点（3D Gaussian Splatting, 3DGS）</strong>：用于表达三维场景，通过稀疏高斯点的集合描述场景的几何结构和外观。</li>
+<li><strong>Latent Large Reconstruction Model（LaLRM）</strong>：直接从潜特征生成三维高斯点。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/faf3d1a5-67d3-487b-9912-462d10e0e3b1"><img src="https://github.com/user-attachments/assets/faf3d1a5-67d3-487b-9912-462d10e0e3b1" alt="image" style="max-width: 100%;"></a></p>
+<h2><strong>详细步骤</strong></h2>
+<h3><strong>1. 视频潜空间生成（Video Latent Generation）</strong></h3>
+<p><strong>目标</strong>：将单张图片转化为包含多视角信息的紧凑视频潜特征（Video Latents）。</p>
+<ol>
+<li>
+<p><strong>视频扩散模型的使用</strong>：</p>
+<ul>
+<li>通过预训练的<strong>视频扩散模型</strong>，从单张图片生成与摄像机轨迹相关的视频潜特征。</li>
+<li>视频扩散模型使用大规模视频数据进行训练，包含丰富的三维场景理解能力，因此能够生成具有3D一致性的视频潜空间。</li>
+</ul>
+</li>
+<li>
+<p><strong>摄像机条件嵌入</strong>：</p>
+<ul>
+<li>通过<strong>Plücker坐标嵌入</strong>表示摄像机的位姿信息，结合旋转矩阵、平移向量和内参矩阵，生成6维的空间-时间相机嵌入。</li>
+<li>设计了<strong>双分支摄像头控制模块（Dual-branch Camera Conditioning）</strong>，融合了ControlNet和LoRA技术：
+<ul>
+<li><strong>ControlNet分支</strong>：保证对相机运动的精确控制。</li>
+<li><strong>LoRA分支</strong>：提供轻量化训练，适应静态场景。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>生成潜特征</strong>：</p>
+<ul>
+<li>扩散模型通过输入的图片和相机轨迹生成一段潜视频，编码了场景的多视角信息（如几何、外观）。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3><strong>2. 三维重建（Latent-to-3D Reconstruction）</strong></h3>
+<p><strong>目标</strong>：从视频潜空间生成三维场景的稀疏表示——<strong>3D高斯点（3DGS）</strong>。</p>
+<ol>
+<li>
+<p><strong>潜特征离散化为Token</strong>：</p>
+<ul>
+<li>将潜特征进行空间和时间维度上的分块（Patchify），生成潜特征Token。</li>
+<li>同时，将相机位姿嵌入生成相机Token。</li>
+</ul>
+</li>
+<li>
+<p><strong>Token的融合与建模</strong>：</p>
+<ul>
+<li>使用Transformer架构融合潜特征Token和相机Token，捕捉多视角之间的几何一致性。</li>
+<li>Transformer输出3D高斯点的属性，包括：
+<ul>
+<li><strong>位置</strong>：3D点的空间坐标。</li>
+<li><strong>颜色</strong>：每个点的RGB值。</li>
+<li><strong>尺度</strong>：点的大小及空间覆盖范围。</li>
+<li><strong>旋转</strong>：高斯点的方向，由四元数表示。</li>
+<li><strong>透明度</strong>：高斯点的透明程度。</li>
+<li><strong>射线距离</strong>：点与摄像机之间的距离（用于深度排序）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>生成高斯点云</strong>：</p>
+<ul>
+<li>输出结果是一组稀疏的3D高斯点（Gaussian Splatting），用于描述场景的几何结构和外观。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3><strong>3. 渲染为2D图像</strong></h3>
+<p><strong>目标</strong>：从生成的3D高斯点云中渲染出目标视角的图像。</p>
+<ol>
+<li>
+<p><strong>虚拟相机的设定</strong>：</p>
+<ul>
+<li>使用输入的目标相机参数，设置虚拟相机的位姿和视角。</li>
+</ul>
+</li>
+<li>
+<p><strong>高斯点的投影与体积渲染</strong>：</p>
+<ul>
+<li>将3D高斯点投影到虚拟相机视角下的2D平面。</li>
+<li>使用体积渲染技术，将高斯点的颜色、透明度和深度信息叠加，生成目标图像。</li>
+</ul>
+</li>
+<li>
+<p><strong>图像生成</strong>：</p>
+<ul>
+<li>融合所有点的渲染结果，生成目标视角下的最终图像。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3><strong>4. 训练优化</strong></h3>
+<p>为了提升生成质量，模型通过以下方式进行优化：</p>
+<ol>
+<li>
+<p><strong>损失函数</strong>：</p>
+<ul>
+<li><strong>均方误差（MSE）损失</strong>：比较渲染图片与真实图片的像素差异。</li>
+<li><strong>感知损失（Perceptual Loss）</strong>：通过预训练的VGG网络，提取高层语义特征，保证感知一致性。</li>
+<li><strong>正则化损失</strong>：对高斯点的尺度和透明度进行正则化，避免生成的点云过于密集或离散。</li>
+</ul>
+</li>
+<li>
+<p><strong>逐步训练策略</strong>：</p>
+<ul>
+<li>初始阶段使用低分辨率数据训练，捕捉场景的基本几何结构。</li>
+<li>后期引入高分辨率数据（包括真实视频和扩散模型生成的视频）进行微调，提高生成的细节和场景范围。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2><strong>创新与优势</strong></h2>
+<ol>
+<li><strong>效率高</strong>：Feed-forward架构避免了逐场景优化，直接生成三维场景表示。</li>
+<li><strong>一致性强</strong>：利用视频潜空间和高斯点云的特性，保证多视角一致性。</li>
+<li><strong>通用性强</strong>：模型在大规模数据上预训练，能生成宽范围、复杂的三维场景。</li>
+<li><strong>内存友好</strong>：通过潜空间的压缩表示减少内存需求，同时加速推理。</li>
+</ol>
+<p>--</p>
+<h1>Q&amp;A</h1>
+<p>1.那既然多视一致依赖于生成模型视频潜空间，那为什么不直接用生成模型生成多视角图片，而是要加上Feed-forward重建过程（并没有统一的场景3DGS的表示，所以加上重建这个阶段也很难保证多视一致性）？</p>
+<hr>
+<h2><strong>1. 为什么不直接用生成模型生成多视角图片？</strong></h2>
+<p>直接使用视频生成模型生成多视角图片看似简单，但在实际场景中存在以下问题：</p>
+<h3><strong>(1) 多视角一致性问题</strong></h3>
+<ul>
+<li>
+<p><strong>生成模型的限制</strong>：<br>
+视频生成模型（如扩散模型）生成的潜特征可以包含多视角信息，但在实际输出时，其多视角生成并不完全保证<strong>三维一致性</strong>。</p>
+<ul>
+<li>例如，从两个新视角生成的图像可能在重叠区域出现几何和纹理不一致（如物体位置偏移、形状扭曲、颜色不同）。</li>
+<li>这是因为扩散模型的核心是基于逐像素生成（2D纹理生成），而非对场景的显式三维理解。</li>
+</ul>
+</li>
+<li>
+<p><strong>无法对遮挡区域建模</strong>：<br>
+直接生成的新视角图片依赖于输入图片和潜特征的推断，而不是构建显式的三维结构。遮挡区域的生成可能缺乏几何逻辑一致性。</p>
+</li>
+</ul>
+<h3><strong>(2) 扩散模型的复杂性与高计算成本</strong></h3>
+<ul>
+<li>
+<p><strong>高计算成本</strong>：<br>
+视频扩散模型直接生成一组多视角图片时，需要在高维像素空间中进行大量采样，计算代价非常高。</p>
+<ul>
+<li>相比之下，生成一个潜特征（latent space）的成本要低得多。</li>
+<li>Feed-forward过程利用潜特征直接重建3DGS，渲染新视角时效率更高。</li>
+</ul>
+</li>
+<li>
+<p><strong>存储成本</strong>：<br>
+视频扩散模型生成的是一组高分辨率的2D图片，而Feed-forward方法生成的是稀疏点云表示（3DGS），存储效率更高，适合更大范围的场景。</p>
+</li>
+</ul>
+<h3><strong>(3) 缺乏明确的三维场景表示</strong></h3>
+<ul>
+<li><strong>生成模型无法提供显式三维结构</strong>：<br>
+直接生成多视角图片无法提取场景的几何信息和深度信息，这使得后续的视角调整、场景编辑、渲染变得非常困难。</li>
+</ul>
+<hr>
+<h2><strong>2. 为什么要加入Feed-forward重建过程？</strong></h2>
+<p>通过引入Feed-forward 3D Reconstruction，文章解决了上述问题，并显著提升了多视图一致性和效率。其优势如下：</p>
+<h3><strong>(1) 明确的三维表示</strong></h3>
+<ul>
+<li>
+<p><strong>3DGS作为三维表示</strong>：<br>
+Feed-forward重建过程中生成的3D Gaussian Splatting（3DGS）是一种显式的三维表示，能够同时描述几何、外观和透明度等属性。</p>
+<ul>
+<li>这为不同视角的渲染提供了清晰的几何参考，确保了遮挡关系和物体位置的一致性。</li>
+<li>相比直接生成图片，显式三维表示可以更好地对多视角重叠区域进行建模。</li>
+</ul>
+</li>
+<li>
+<p><strong>统一的生成管道</strong>：<br>
+虽然3DGS是为单张图片生成的，但由于共享的LaLRM（Latent Large Reconstruction Model）捕捉了多视角一致性，因此不同视角下的3DGS表示在渲染时能保持较高的一致性。</p>
+<p><strong>核心在于：多视生成视频是在隐空间学习一致性，表现在像素的一致性上，不一定是3D一致，但加上FeedForward重建，则是在3D空间学习一致性；</strong></p>
+</li>
+</ul>
+<h3><strong>(2) 高效的渲染过程</strong></h3>
+<ul>
+<li>
+<p><strong>稀疏点云的高效渲染</strong>：<br>
+3DGS是一种稀疏表示，渲染效率高，不需要像扩散模型那样逐像素生成高分辨率图片。</p>
+<ul>
+<li>渲染时只需要投影和混合稀疏高斯点即可，计算和存储需求显著降低。</li>
+</ul>
+</li>
+<li>
+<p><strong>支持动态视角调整</strong>：<br>
+有了3DGS表示，用户可以任意调整视角进行实时渲染，而无需为每个目标视角重新生成图片。</p>
+</li>
+</ul>
+<h3><strong>(3) 更好的遮挡区域推断</strong></h3>
+<ul>
+<li><strong>结合生成先验和几何建模</strong>：<br>
+在Feed-forward过程中，模型利用视频潜空间中的生成先验结合3DGS的几何建模能力，能够更好地推断出遮挡区域和未见区域的合理几何与纹理。
+<ul>
+<li>例如：在极端视角偏移时，Feed-forward生成的3DGS可以通过推断生成隐藏区域，而直接生成的新视角图片可能会丢失细节或逻辑不一致。</li>
+</ul>
+</li>
+</ul>
+<h3><strong>(4) 更适合大场景和多视图扩展</strong></h3>
+<ul>
+<li><strong>分块式建模与渲染</strong>：<br>
+由于3DGS是稀疏的点云表示，可以分块生成和渲染，不需要一次性在像素空间生成整幅图像。
+<ul>
+<li>这使得Feed-forward方法在处理大场景时更高效，同时适合多视图扩展。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2><strong>3. Feed-forward方法如何解决多视一致性？</strong></h2>
+<p>虽然Feed-forward方法生成的是局部3DGS表示，但以下设计保证了跨视角的一致性：</p>
+<h3><strong>(1) 基于共享模型的多视角一致性</strong></h3>
+<ul>
+<li>LaLRM（Latent Large Reconstruction Model）是一个训练好的全局模型，对所有图片共享，其设计能够捕捉多视角一致性。</li>
+<li>在训练时，通过多视角损失（如感知损失和像素级对比）优化模型，使其能够生成不同视角下几何一致的3DGS。</li>
+</ul>
+<h3><strong>(2) 潜空间的一致性建模</strong></h3>
+<ul>
+<li>视频潜空间编码了多视角信息，Feed-forward过程以此为基础，生成的3DGS天然具有跨视角一致性。</li>
+</ul>
+<h3><strong>(3) 渲染阶段的深度排序</strong></h3>
+<ul>
+<li>通过渲染阶段对3DGS高斯点进行深度排序和混合，确保遮挡关系正确，从而提升视觉一致性。</li>
+</ul>
+<hr>
+<p>2.如何适应大场景呢？新视角有较大偏移，如何脑补出原图中不在的区域呢？</p>
+<h2><strong>适应大场景的能力</strong></h2>
+<p>文中方法通过以下机制支持大场景：</p>
+<h3>1. <strong>视频潜空间的“全局上下文”</strong></h3>
+<ul>
+<li><strong>视频扩散模型</strong>在生成视频潜特征时，会模拟摄像机轨迹，生成包含多个视角的潜视频。这意味着潜特征中编码了更广范围的场景信息，而不仅仅是原始图片的视角。</li>
+<li>在推理阶段，虽然输入仅为单张图片，但潜特征中已经包含了对大场景的“隐式理解”。</li>
+</ul>
+<h3>2. <strong>多视角一致性建模</strong></h3>
+<ul>
+<li>通过训练过程中的损失设计（例如感知损失和像素级重建损失），模型学习到在新视角下生成与输入一致的场景几何和外观。</li>
+<li>这种一致性建模使得3DGS在大场景下能保持更高的全局几何一致性。</li>
+</ul>
+<h3>3. <strong>高斯点云的稀疏表示</strong></h3>
+<ul>
+<li>3DGS表示通过稀疏点云（而非逐像素的表示）描述场景，大幅减少了对存储和计算的需求，使得模型可以处理更大范围的场景。</li>
+<li>点云的稀疏性和可扩展性为大场景表示提供了天然优势。</li>
+</ul>
+<hr>
+<h2><strong>新视角大偏移的渲染</strong></h2>
+<p>当目标视角相较原始图片偏移较大时（例如视角旋转超过90度或观察完全遮挡的区域），模型需要“脑补”出输入图片中没有的信息。文章中的方法通过以下机制解决这一问题：</p>
+<h3>1. <strong>基于生成的“新视角信息”</strong></h3>
+<ul>
+<li>视频扩散模型训练时会模拟摄像机轨迹生成潜特征，因此它能够在潜空间中编码从未观察到区域的可能几何和纹理信息。</li>
+<li>在推理阶段，目标视角的信息是基于这些潜特征生成的，而不是完全依赖输入图片。</li>
+</ul>
+<h3>2. <strong>使用大规模多视角数据训练</strong></h3>
+<ul>
+<li>视频扩散模型在大规模视频数据集上训练，包含了丰富的三维场景先验知识。这种训练使得模型对大偏移的新视角具有较强的泛化能力。</li>
+<li>即使输入图片中没有的区域，模型可以根据训练中学到的全局场景先验进行“合理推测”。</li>
+</ul>
+<h3>3. <strong>渐进式训练策略</strong></h3>
+<ul>
+<li>在训练阶段，模型逐步扩展到更高分辨率的场景表示，同时在真实视频数据和合成视频数据上训练。</li>
+<li>通过这种渐进式训练策略，模型可以更好地适应“未见区域”的重建和新视角生成。</li>
+</ul>
+<hr>
+<h2><strong>文章能否完全解决大视角偏移和新区域生成的问题？</strong></h2>
+<p>文章提供了较好的方法来<strong>缓解</strong>这一问题，但可能还无法完全解决，尤其是以下场景：</p>
+<ol>
+<li>
+<p><strong>极端偏移视角</strong>：</p>
+<ul>
+<li>如果目标视角与输入图片相差太大，且没有任何先验几何信息可参考（例如输入图片是正面视角，目标视角完全是背面），模型可能会生成缺乏细节或不完全正确的结果。</li>
+<li>此时的生成完全依赖于训练中学到的先验，结果可能带有一定的不确定性。</li>
+</ul>
+</li>
+<li>
+<p><strong>高复杂度大场景</strong>：</p>
+<ul>
+<li>对于高度复杂的场景（如遮挡多、纹理丰富），由于视频潜空间的压缩性，可能会丢失部分细节，从而影响新视角的生成效果。</li>
+</ul>
+</li>
+<li>
+<p><strong>训练数据依赖</strong>：</p>
+<ul>
+<li>模型的生成能力高度依赖于训练数据的多样性。如果训练集中缺乏某些类型的场景或大视角偏移的数据，生成的结果可能会受到影响。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong>总结</strong>：<br>
+这篇文章提出的方法可以<strong>在一定程度上解决新视角大偏移问题</strong>，通过视频潜空间捕捉多视角一致性和利用生成先验，能够脑补出输入图片中未观察到的区域。对于大场景，该方法通过稀疏的3DGS表示和渐进式训练策略提升适应能力。然而，对于极端偏移视角和高度复杂场景，可能仍存在一定的挑战。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://mickeyding.github.io">NiaDing's Technical Blog </a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","mickeyding/mickeyding.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+<script async type='text/javascript' src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'></script>
+
+</html>
