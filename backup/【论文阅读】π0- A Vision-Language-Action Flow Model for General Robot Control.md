@@ -57,9 +57,10 @@
 - **流匹配的基本原理**：
   - 学习动作分布 $ p(A_t|o_t) $，其中 $ A_t $ 是动作块，$ o_t $是机器人观测（如图像、语言、关节状态）。
   - 通过条件流匹配损失函数 $ L_\tau(\theta) $：
-    $$
-    L_\tau(\theta) = \mathbb{E}_{q(A^\tau_t|A_t), p(o_t)} \left\| v_\theta(A^\tau_t, o_t) - u(A^\tau_t | A_t) \right\|^2
-    $$
+    
+$$
+L_\tau(\theta) = \mathbb{E}_{q(A^\tau_t|A_t), p(o_t)} \left\| v_\theta(A^\tau_t, o_t) - u(A^\tau_t | A_t) \right\|^2
+$$
 
     其中：
     - $ q(A^\tau_t | A_t) $ 是带噪声的动作分布。
@@ -78,10 +79,12 @@
 - 动作生成在推理时通过迭代的积分过程完成：
   - 从随机初始动作 $ A_0 \sim \mathcal{N}(0, I) $ 开始。
   - 使用欧拉积分公式：
-    $$
-    A^{\tau+\delta}_t = A^\tau_t + \delta v_\theta(A^\tau_t, o_t)
-    $$
+  
+$$
+A^{\tau+\delta}_t = A^\tau_t + \delta v_\theta(A^\tau_t, o_t)
+$$
     其中 \( \delta \) 是步长（如 0.1）。
+
   - 整个过程通过缓存中间结果（如注意力键值）优化计算效率。
 
 
