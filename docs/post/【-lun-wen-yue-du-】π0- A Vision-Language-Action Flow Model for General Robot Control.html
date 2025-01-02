@@ -10,15 +10,13 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="
-![image](https://github.com/user-attachments/assets/6178940c-d7a8-42d9-861a-20d411875b77)
+<meta name="description" content="![image](https://github.com/user-attachments/assets/6178940c-d7a8-42d9-861a-20d411875b77)
 
 
 # 目标
 这篇文章介绍了名为 **π0** 的模型，旨在解决机器人学习中的主要挑战，包括数据稀缺性、泛化能力和鲁棒性。">
 <meta property="og:title" content="【论文阅读】π0: A Vision-Language-Action Flow Model for General Robot Control">
-<meta property="og:description" content="
-![image](https://github.com/user-attachments/assets/6178940c-d7a8-42d9-861a-20d411875b77)
+<meta property="og:description" content="![image](https://github.com/user-attachments/assets/6178940c-d7a8-42d9-861a-20d411875b77)
 
 
 # 目标
@@ -119,6 +117,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <ol>
 <li>VLM 专家：负责处理图像和语言输入。{width=2048, depth=18, mlp dim=16,384, num heads=18, num kv heads=1, head dim=256}。</li>
 <li>动作专家：处理机器人关节状态（proprioceptive state）和生成动作。 {width=1024, mlp dim=4096}, resulting in a parameter count of ∼300M。</li>
+<li>transformer层中的self attention层用来混合VLM专家和动作专家；</li>
 </ol>
 </li>
 </ul>
@@ -142,7 +141,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>
 <p><strong>输出特征</strong>：</p>
 <ul>
-<li>动作输出是 <strong>连续的多步动作序列</strong>（action chunks），由动作专家生成，包含未来的多个高频率动作。</li>
+<li>动作输出是 <strong>连续的多步动作序列</strong>（action chunks），由动作专家生成，包含未来的多个高频率动作。只输出未来预测的action；</li>
 <li>输出动作的形式支持多种机器人配置（如单臂、双臂和移动基座）：
 <ul>
 <li>单臂：6自由度（6-DoF）的动作序列。</li>
