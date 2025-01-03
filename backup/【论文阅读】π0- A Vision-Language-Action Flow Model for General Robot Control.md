@@ -59,8 +59,9 @@
   - 通过条件流匹配损失函数 $ L_\tau(\theta) $：
     
 $$
-L_\tau(\theta) = \mathbb{E}_{q(A^\tau_t|A_t), p(o_t)} \left\| v_\theta(A^\tau_t, o_t) - u(A^\tau_t | A_t) \right\|^2
+L_\tau(\theta) = \mathbb{E}_{q(A^\tau_t|A_t), p(o_t)} \left[ \left\| v_\theta(A^\tau_t, o_t) - u(A^\tau_t | A_t) \right\|^2 \right]
 $$
+
 
     其中：
     - $ q(A^\tau_t | A_t) $ 是带噪声的动作分布。
@@ -83,6 +84,7 @@ $$
 $$
 A^{\tau+\delta}_t = A^\tau_t + \delta v_\theta(A^\tau_t, o_t)
 $$
+
     其中 \( \delta \) 是步长（如 0.1）。
 
   - 整个过程通过缓存中间结果（如注意力键值）优化计算效率。

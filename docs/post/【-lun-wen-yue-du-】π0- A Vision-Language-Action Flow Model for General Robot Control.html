@@ -175,7 +175,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </li>
 </ul>
 <p>$$<br>
-L_\tau(\theta) = \mathbb{E}<em>{q(A^\tau_t|A_t), p(o_t)} \left| v</em>\theta(A^\tau_t, o_t) - u(A^\tau_t | A_t) \right|^2<br>
+L_\tau(\theta) = \mathbb{E}<em>{q(A^\tau_t|A_t), p(o_t)} \left[ \left| v</em>\theta(A^\tau_t, o_t) - u(A^\tau_t | A_t) \right|^2 \right]<br>
 $$</p>
 <pre class="notranslate"><code class="notranslate">其中：
 - $ q(A^\tau_t | A_t) $ 是带噪声的动作分布。
@@ -208,8 +208,9 @@ $$</p>
 </ul>
 <p>$$<br>
 A^{\tau+\delta}<em>t = A^\tau_t + \delta v</em>\theta(A^\tau_t, o_t)<br>
-$$<br>
-其中 ( \delta ) 是步长（如 0.1）。</p>
+$$</p>
+<pre class="notranslate"><code class="notranslate">其中 \( \delta \) 是步长（如 0.1）。
+</code></pre>
 <ul>
 <li>整个过程通过缓存中间结果（如注意力键值）优化计算效率。</li>
 </ul>
