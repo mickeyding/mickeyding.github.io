@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>NiaDing's Technical Blog </title><link>https://mickeyding.github.io</link><description>I have research and development experience in autonomous driving simulation, and have explored related technologies such as NeRF, 3DGS and diffusion. Here, I will be sharing my insights and knowledge with everyone.</description><copyright>NiaDing's Technical Blog </copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://github.githubassets.com/favicons/favicon.svg</url><title>avatar</title><link>https://mickeyding.github.io</link></image><lastBuildDate>Tue, 07 Jan 2025 03:47:08 +0000</lastBuildDate><managingEditor>NiaDing's Technical Blog </managingEditor><ttl>60</ttl><webMaster>NiaDing's Technical Blog </webMaster><item><title>【论文阅读】1x-worldmodel</title><link>https://mickeyding.github.io/post/%E3%80%90-lun-wen-yue-du-%E3%80%911x-worldmodel.html</link><description>&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>NiaDing's Technical Blog </title><link>https://mickeyding.github.io</link><description>I have research and development experience in autonomous driving simulation, and have explored related technologies such as NeRF, 3DGS and diffusion. Here, I will be sharing my insights and knowledge with everyone.</description><copyright>NiaDing's Technical Blog </copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://github.githubassets.com/favicons/favicon.svg</url><title>avatar</title><link>https://mickeyding.github.io</link></image><lastBuildDate>Tue, 07 Jan 2025 07:48:12 +0000</lastBuildDate><managingEditor>NiaDing's Technical Blog </managingEditor><ttl>60</ttl><webMaster>NiaDing's Technical Blog </webMaster><item><title>【论文阅读】1x-worldmodel</title><link>https://mickeyding.github.io/post/%E3%80%90-lun-wen-yue-du-%E3%80%911x-worldmodel.html</link><description>&#13;
 # World Model在机器人领域的必要性&#13;
 &#13;
 1. 解决机器人评估中的挑战&#13;
@@ -81,6 +81,7 @@ DiffusionDrive旨在解决端到端自动驾驶中的实时性、多模式决策
 &#13;
 1.Driving Scene Synthesis on Free-form Trajectories with Generative Prior [2024.12.02]&#13;
 2.InfiniCube: Unbounded and Controllable Dynamic 3D Driving Scene Generation with World-Guided Video Models [2024.12]&#13;
+3.GenEx: Generating an Explorable World [2024.12]&#13;
 &#13;
 # Driving Scene Synthesis on Free-form Trajectories with Generative Prior&#13;
 ![image](https://github.com/user-attachments/assets/3524244e-b78b-45cc-8ad6-1be14e74a944)&#13;
