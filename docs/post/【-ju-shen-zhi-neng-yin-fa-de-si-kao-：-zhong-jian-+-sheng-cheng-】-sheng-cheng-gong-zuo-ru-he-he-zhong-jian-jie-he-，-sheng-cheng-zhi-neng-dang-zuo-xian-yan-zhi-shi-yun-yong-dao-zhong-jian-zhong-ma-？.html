@@ -281,6 +281,7 @@ $$</p>
 <p>InfiniCube通过结合稀疏体素生成、视频生成和动态3D场景重建的方法，成功实现了高保真、可控且大规模的动态3D驾驶场景生成。整个方案涉及了Voxel Generation，Image Generation，Video Generation，3DGS reconstruction， FeedForward 3DGS Reconstruction，<strong>对在工业界是否能直接应用（系统误差耦合误差的影响）有一些担忧</strong>；重建和生成也没有真正融合，视频生成在这里还只是提供Texture相关的信息；大扰动下，3DGS的渲染质量和视频生成的质量应该还是会有差距，并没有解决这个问题；</p>
 <hr>
 <h1>GenEx: Generating an Explorable World</h1>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/538dbfea-165c-4412-96b7-163f814c915a"><img src="https://github.com/user-attachments/assets/538dbfea-165c-4412-96b7-163f814c915a" alt="image" style="max-width: 100%;"></a></p>
 <h2>目标</h2>
 <p>GenEx的主要目标是通过单张RGB图片生成可探索的3D一致虚拟环境，以支持人工智能（AI）在虚拟世界中的学习、导航和决策。具体目标包括：</p>
 <ol>
@@ -288,8 +289,8 @@ $$</p>
 <li><strong>增强AI能力</strong>：通过“想象增强策略”（Imagination-Augmented Policy），帮助AI模拟环境，做出更可靠的决策。</li>
 <li><strong>支持多场景应用</strong>：在导航、虚拟现实（VR）、互动游戏和自主机器人领域，推动多智能体的协作与决策。</li>
 </ol>
-<p>##方法<br>
-GenEx结合了生成模型和智能体策略，提出了以下关键阶段：</p>
+<h2>方法</h2>
+<p>GenEx结合了生成模型和智能体策略，提出了以下关键阶段：</p>
 <h3>1.世界生成（World Initialization）</h3>
 <ul>
 <li><strong>目标</strong>：基于单张RGB图像生成360°的全景虚拟世界，为AI提供沉浸式环境。</li>
@@ -400,7 +401,7 @@ GenEx结合了生成模型和智能体策略，提出了以下关键阶段：</p
 </li>
 </ol>
 <h2>总结</h2>
-<p>GenEx通过结合生成AI和物理一致性的虚拟世界建模，提供了一个可探索、动态交互的生成环境，推动了嵌入式AI在导航、协作和决策中的应用。这种框架为跨领域应用（如机器人技术、VR/AR）奠定了基础，同时展示了生成模型在多智能体协作和复杂任务中的潜力。<strong>引入了全景视频的生成保持loop consistency，全景视频的覆盖范围大</strong>，所以对于持久性来说，视频生成模型的输入前一帧的条件$x_{t-1}^s $包含的范围更大，但对于更大的范围，是否还能保证loop consistency？ 原理上至少没有保证；主要还是靠合成的数据的强3D一致性来保证生成效果，真实场景很难收集这样的数据来应用。</p></div>
+<p>GenEx通过结合生成AI和物理一致性的虚拟世界建模，提供了一个可探索、动态交互的生成环境，推动了嵌入式AI在导航、协作和决策中的应用。这种框架为跨领域应用（如机器人技术、VR/AR）奠定了基础，同时展示了生成模型在多智能体协作和复杂任务中的潜力。<strong>引入了全景视频的生成保持loop consistency，全景视频的覆盖范围大</strong>，所以对于持久性来说，视频生成模型的输入前一帧的条件 $x_{t-1}^s$包含的范围更大，但对于更大的范围，是否还能保证loop consistency？ 原理上至少没有保证；主要还是靠合成的数据的强3D一致性来保证生成效果，真实场景很难收集这样的数据来应用。</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
