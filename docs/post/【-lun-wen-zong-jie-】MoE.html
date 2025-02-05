@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="# 论文list
+1. ** DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models** 2024.01 
+
+# DeepSeekMoE
+
+![Image](https://github.com/user-attachments/assets/7d46c4f0-f661-4b05-82cd-15a0e44d1117)
+
+**，它提出了一种名为 **DeepSeekMoE** 的新的Mixture-of-Experts（MoE）架构，旨在通过更好的专家专门化来提高MoE语言模型的性能。">
+<meta property="og:title" content="【论文总结】MoE">
+<meta property="og:description" content="# 论文list
+1. ** DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models** 2024.01 
+
+# DeepSeekMoE
+
+![Image](https://github.com/user-attachments/assets/7d46c4f0-f661-4b05-82cd-15a0e44d1117)
+
+**，它提出了一种名为 **DeepSeekMoE** 的新的Mixture-of-Experts（MoE）架构，旨在通过更好的专家专门化来提高MoE语言模型的性能。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://mickeyding.github.io/post/%E3%80%90-lun-wen-zong-jie-%E3%80%91MoE.html">
+<meta property="og:image" content="https://github.githubassets.com/favicons/favicon.svg">
+<title>【论文总结】MoE</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">【论文总结】MoE</h1>
+<div class="title-right">
+    <a href="https://mickeyding.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/mickeyding/mickeyding.github.io/issues/20" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h1>论文list</h1>
+<ol>
+<li>** DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models** 2024.01</li>
+</ol>
+<h1>DeepSeekMoE</h1>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/7d46c4f0-f661-4b05-82cd-15a0e44d1117"><img src="https://github.com/user-attachments/assets/7d46c4f0-f661-4b05-82cd-15a0e44d1117" alt="Image" style="max-width: 100%;"></a></p>
+<p>**，它提出了一种名为 <strong>DeepSeekMoE</strong> 的新的Mixture-of-Experts（MoE）架构，旨在通过更好的专家专门化来提高MoE语言模型的性能。</p>
+<h2>1. <strong>目的</strong>：</h2>
+<p>文章的主要目的是解决当前MoE架构中的专家专门化问题。传统的MoE架构（如GShard）面临以下两个主要问题：</p>
+<ul>
+<li><strong>知识混杂</strong>：每个专家被训练以处理不同类型的知识，这会导致专家在学习多种知识时效果不佳，尤其是当每个专家的知识过于广泛时。</li>
+<li><strong>知识冗余</strong>：多个专家可能会学习相同或相似的知识，导致模型的参数冗余，并且不能有效地利用每个专家的独特性。</li>
+</ul>
+<p><strong>DeepSeekMoE</strong> 通过两种主要策略来应对这些问题：</p>
+<ul>
+<li><strong>精细的专家分割</strong>：将专家的中间隐藏维度分割成更小的单位，从而提高激活的专家数量，使得每个专家可以专注于更细致的知识领域。</li>
+<li><strong>共享专家隔离</strong>：一些专家被隔离并始终激活，目的是捕获并集中共通的知识，减少其他专家之间的冗余。</li>
+</ul>
+<h2>2. <strong>具体方法</strong>：</h2>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/4d80eef4-bea5-47a0-a28d-0d5f9410fe67"><img src="https://github.com/user-attachments/assets/4d80eef4-bea5-47a0-a28d-0d5f9410fe67" alt="Image" style="max-width: 100%;"></a></p>
+<h3>2.1 <strong>精细专家分割</strong>（Fine-Grained Expert Segmentation）：</h3>
+<p>在传统的Mixture-of-Experts（MoE）架构中，每个专家的前馈网络（Feed-Forward Network，FFN）通常具有相同的隐藏维度。为了解决知识混杂的问题，DeepSeekMoE采用了精细的专家分割策略：</p>
+<ul>
+<li>
+<p><strong>核心思想</strong>：每个专家的FFN被分割成更小的“子专家”——通过减小FFN的隐藏维度，使得每个专家在学习过程中更加专注于某一类知识。这样，每个“子专家”专注于更狭窄的领域，从而避免了传统MoE架构中一个专家需要学习多个领域知识的情况。</p>
+</li>
+<li>
+<p><strong>具体实施</strong>：</p>
+<ul>
+<li>假设一个标准专家FFN的隐藏维度为(d)，在DeepSeekMoE中，隐藏维度会被减少到原来的( \frac{1}{m} )，其中 (m) 是细分的倍数。</li>
+<li>这意味着，原本一个专家对应一个FFN网络，现在这个专家将被分割成(m)个较小的专家，保持总体计算量不变。</li>
+<li>为了弥补分割后带来的计算量下降，DeepSeekMoE通过增加激活的专家数量（即每个输入token会激活更多的专家）来维持相同的计算开销。</li>
+</ul>
+</li>
+<li>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>这种精细化的分割提高了专家间的专门化，每个小专家专注于处理更狭窄的知识类型。</li>
+<li>通过激活更多的细粒度专家，模型能够更加灵活地组合激活的专家，避免了专家之间的知识交叉和混杂。</li>
+</ul>
+</li>
+</ul>
+<h3>2.2 <strong>共享专家隔离</strong>（Shared Expert Isolation）：</h3>
+<p>为了进一步减少冗余知识和确保不同专家间的专门化，DeepSeekMoE提出了“共享专家”策略。</p>
+<ul>
+<li>
+<p><strong>核心思想</strong>：共享专家是一些专家，它们的任务是捕获并共享通用的知识，这些共享专家在每次计算中都会被激活。而其他的专家（通常称为“路由专家”）则负责更具专门化的任务。</p>
+</li>
+<li>
+<p><strong>具体实施</strong>：</p>
+<ul>
+<li>在每一层中，DeepSeekMoE会选择( K_s )个专家作为共享专家，这些专家会在每次计算中都被激活，旨在捕捉任务间共享的知识。</li>
+<li>由于共享专家捕捉的是通用知识，所以它们的参数在不同的token计算过程中都是通用的，这有效减少了知识冗余。</li>
+<li>与此相对的，剩下的专家则是路由专家，只会根据token的具体输入被激活。</li>
+</ul>
+</li>
+<li>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>共享专家有助于减少冗余，确保不同专家关注于特定的、独特的知识领域。</li>
+<li>共享专家的使用也有效提升了参数效率，避免了路由专家之间知识的重复存储。</li>
+</ul>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/a78bdd03-0aa2-4dad-84a4-f60b859669e2"><img src="https://github.com/user-attachments/assets/a78bdd03-0aa2-4dad-84a4-f60b859669e2" alt="Image" style="max-width: 100%;"></a></p>
+<p>$e^l_i$表示的是每个专家的质心，即可学习的embedding，用来计算和Token的相似度来投票出TopK个专家；</p>
+<h3>2.3 <strong>专家级平衡损失（Expert-Level Balance Loss）</strong>：</h3>
+<ul>
+<li>
+<p><strong>目标</strong>：解决“路由崩溃”（routing collapse）的问题，确保每个专家都能得到足够的训练，而不是集中在少数几个专家上。它确保每个专家的使用情况是均衡的，而不是某些专家被频繁选中，其他专家被忽略。</p>
+</li>
+<li>
+<p><strong>核心思想</strong>：通过引入平衡损失，模型鼓励尽可能公平地使用所有专家。这防止了专家的训练过于集中，导致某些专家过拟合，而其他专家未被充分训练。</p>
+</li>
+<li>
+<p><strong>具体实施</strong>：</p>
+<ul>
+<li>计算每个专家的使用频率（即有多少token被分配给该专家）。</li>
+<li>使用一个平衡因子（(\alpha_1)）来控制这个损失项，使得在每次训练时，专家的使用频率更加均衡。</li>
+<li>损失函数通过计算所有专家的使用频率（(f_i)）和亲和力（(P_i)）的加权和来度量平衡性。具体的计算公式为：<br>
+$$<br>
+L_{\text{ExpBal}} = \alpha_1 \sum_{i=1}^{N'} f_i P_i<br>
+$$</li>
+<li>其中，( f_i ) 是专家( i )的使用频率，( P_i ) 是该专家的亲和力。</li>
+</ul>
+</li>
+<li>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>该损失确保了每个专家都能得到充分的训练，防止了少数几个专家占用模型大部分计算资源，保证了专家之间的训练更加均衡。</li>
+</ul>
+</li>
+</ul>
+<h3>2.4 <strong>设备级平衡损失（Device-Level Balance Loss）</strong>：</h3>
+<ul>
+<li>
+<p><strong>目标</strong>：解决计算瓶颈的问题，特别是当模型在多台设备上进行分布式训练时，确保各个设备的计算负载尽量平衡，从而避免某些设备的计算负担过重。</p>
+</li>
+<li>
+<p><strong>核心思想</strong>：在多设备训练中，可能会出现某些设备计算负担过重，而其他设备负担较轻。设备级平衡损失的引入旨在确保负载平衡，使得每个设备的计算量大致相等，从而避免了计算瓶颈。</p>
+</li>
+<li>
+<p><strong>具体实施</strong>：</p>
+<ul>
+<li>计算每个设备的计算负载（即分配给该设备的专家数量）。</li>
+<li>使用设备级平衡因子（(\alpha_2)）来控制损失项，确保负载平衡。损失函数的计算公式为：<br>
+$$<br>
+L_{\text{DevBal}} = \alpha_2 \sum_{i=1}^{D} f'_i P'_i<br>
+$$</li>
+<li>其中，( f'_i ) 是分配给设备( i )的专家的平均使用频率，( P'_i ) 是该设备的专家亲和力。</li>
+</ul>
+</li>
+<li>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>通过平衡每个设备的计算负载，减少了计算瓶颈，使得训练更加高效，能够在更大规模的分布式环境下有效地进行。</li>
+</ul>
+</li>
+</ul>
+<h3>2.5 <strong>参数和计算效率</strong>：</h3>
+<p>DeepSeekMoE保持了传统MoE架构的计算效率，同时通过以上的策略进一步优化了计算量和参数的使用：</p>
+<ul>
+<li><strong>计算开销</strong>：虽然DeepSeekMoE使用更多的激活专家，但通过精细的专家分割和共享专家的引入，计算量保持在合理范围内。</li>
+<li><strong>参数利用</strong>：通过将专家分割成更小的部分并引入共享专家，DeepSeekMoE能更高效地使用参数，避免冗余和浪费。</li>
+</ul>
+<h3>3. <strong>下游表现</strong>：</h3>
+<p>DeepSeekMoE的下游表现显示了它在多个任务上的优越性，尤其是在以下几个方面：</p>
+<ul>
+<li><strong>语言建模</strong>：通过在Pile数据集上的测试，DeepSeekMoE显示出比传统的MoE架构（如GShard）更好的性能，尤其在使用相同数量的计算和参数时。</li>
+<li><strong>推理与语言理解</strong>：在多个基准任务（如HellaSwag、PIQA、RACE等）上，DeepSeekMoE在许多任务上超越了现有的MoE架构，显示出更好的推理和理解能力。</li>
+<li><strong>代码生成</strong>：DeepSeekMoE在代码生成任务（如HumanEval和MBPP）上也表现突出，显示出更强的生成能力。</li>
+<li><strong>知识问答</strong>：在诸如TriviaQA和NaturalQuestions这样的闭卷问答任务上，DeepSeekMoE表现出了较好的效果。</li>
+</ul></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://mickeyding.github.io">NiaDing's Technical Blog </a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","mickeyding/mickeyding.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+<script async type='text/javascript' src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default'></script><script>MathJax = {tex: {inlineMath: [["$", "$"]]}};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</html>
