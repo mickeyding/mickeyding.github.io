@@ -165,13 +165,18 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p><strong>具体实施</strong>：</p>
 <ul>
 <li>计算每个专家的使用频率（即有多少token被分配给该专家）。</li>
-<li>使用一个平衡因子（(\alpha_1)）来控制这个损失项，使得在每次训练时，专家的使用频率更加均衡。</li>
-<li>损失函数通过计算所有专家的使用频率（(f_i)）和亲和力（(P_i)）的加权和来度量平衡性。具体的计算公式为：<br>
-$$<br>
-L_{\text{ExpBal}} = \alpha_1 \sum_{i=1}^{N'} f_i P_i<br>
-$$</li>
-<li>其中，( f_i ) 是专家( i )的使用频率，( P_i ) 是该专家的亲和力。</li>
+<li>使用一个平衡因子（(\alpha_1)）来控制这个损失项;</li>
+<li>损失函数通过计算所有专家的使用频率（(f_i)）和亲和力（(P_i)）的加权和来度量平衡性。具体的计算公式为：</li>
 </ul>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/2c14f741-7d97-4501-90bf-541291498f95"><img src="https://github.com/user-attachments/assets/2c14f741-7d97-4501-90bf-541291498f95" alt="Image" style="max-width: 100%;"></a></p>
+<ul>
+<li>
+<p>其中，( f_i ) 是专家( i )的使用频率，( P_i ) 是该专家的亲和力。  T是专家要处理的全部的token数；N‘表示去掉共享专家后的路由专家的数量； K’表示激活路由专家的数量；I是指示函数</p>
+</li>
+<li>
+<p>公式13为什么要乘以N‘ 并除以K’ ？为了保持计算损失的恒定，不随专家数量的变化而变化</p>
 </li>
 <li>
 <p><strong>优势</strong>：</p>
@@ -192,12 +197,14 @@ $$</li>
 <p><strong>具体实施</strong>：</p>
 <ul>
 <li>计算每个设备的计算负载（即分配给该设备的专家数量）。</li>
-<li>使用设备级平衡因子（(\alpha_2)）来控制损失项，确保负载平衡。损失函数的计算公式为：<br>
-$$<br>
-L_{\text{DevBal}} = \alpha_2 \sum_{i=1}^{D} f'_i P'_i<br>
-$$</li>
-<li>其中，( f'_i ) 是分配给设备( i )的专家的平均使用频率，( P'_i ) 是该设备的专家亲和力。</li>
+<li>使用设备级平衡因子（(\alpha_2)）来控制损失项，确保负载平衡。损失函数的计算公式为：</li>
 </ul>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/1b211089-1bb3-4700-b0cf-24862ea0d5b4"><img src="https://github.com/user-attachments/assets/1b211089-1bb3-4700-b0cf-24862ea0d5b4" alt="Image" style="max-width: 100%;"></a></p>
+<ul>
+<li>
+<p>其中，( f'_i ) 是分配给设备( i )的专家的平均使用频率，( P'_i ) 是该设备的专家亲和力。</p>
 </li>
 <li>
 <p><strong>优势</strong>：</p>
