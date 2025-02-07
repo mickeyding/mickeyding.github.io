@@ -106,3 +106,10 @@ DeepSeekMoE的下游表现显示了它在多个任务上的优越性，尤其是
 - **代码生成**：DeepSeekMoE在代码生成任务（如HumanEval和MBPP）上也表现突出，显示出更强的生成能力。
 - **知识问答**：在诸如TriviaQA和NaturalQuestions这样的闭卷问答任务上，DeepSeekMoE表现出了较好的效果。
 
+# DeepSeekV3
+
+
+
+
+## MLA
+
